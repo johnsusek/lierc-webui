@@ -1,23 +1,31 @@
 <template>
     <main>
-        <div>left stuff</div>
+        <div class="layout-left">
+            <user-menu></user-menu>
+            <channel-list></channel-list>
+        </div>
+
         <div class="flex-grow flex-column flex-display">
             <div>top stuff</div>
+
             <div class="flex-grow flex-display">
                 <div class="flex-grow">layout-content</div>
                 <div>layout-sidebar</div>
             </div>
+
             <div>bottom stuff</div>
         </div>
+
     </main>
 </template>
 
 <script>
-    import Hello from './components/Hello'
+    import UserMenu from './components/UserMenu'
+    import ChannelList from './components/ChannelList'
 
     export default {
         components: {
-            Hello
+            UserMenu, ChannelList
         }
     }
 </script>
@@ -25,6 +33,9 @@
 <style>
     html, body {
         height: 100%;
+    }
+    .muted {
+        color: rgba(192,192,192,0.5);
     }
 </style>
 
@@ -41,5 +52,12 @@
     }
     .flex-display {
         display: flex;
+    }
+
+    .layout-left {
+        /*background: #6435C9;*/
+        padding: 1rem;
+        height: 100%;
+        overflow: scroll;
     }
 </style>
