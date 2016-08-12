@@ -50,9 +50,6 @@
         color: rgba(192,192,192,0.8) !important;
         border-color: rgba(192,192,192,0.2) !important;
     }
-    .basic.muted.label {
-        /*border: 0;*/
-    }
 </style>
 
 <style scoped>
