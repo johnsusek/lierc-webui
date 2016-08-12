@@ -1,9 +1,12 @@
 <template>
     <div>
-        Channels <span class="muted">({{ channels.length }})</span> <i class=" muted add circle link icon"></i>
+        Direct Messages <span class="muted">({{ directMessages.length }})</span> <i class=" muted add circle link icon"></i>
 
         <div class="ui small vertical menu">
-            <a v-for="channel in channels" class="item">{{ channel }}</a>
+            <a v-for="directMessage in directMessages" class="item">
+                <div class="ui label">1</div>
+                {{ directMessage }}
+            </a>
         </div>
     </div>
 </template>
@@ -12,7 +15,7 @@
     export default {
         data() {
             return {
-                channels: ['#perl', '#javascript', '#golang', '#python']
+                directMessages: ['alice', 'bob', 'charlie', 'davos']
             }
         }
     }

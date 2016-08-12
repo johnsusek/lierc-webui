@@ -1,8 +1,7 @@
 <template>
-    <div class="ui violet inverted segment">
-
+    <div>
         <div class="ui dropdown">
-            <h3 class="ui white inverted header text">{{ fullName }}</h3><i class="angle down icon"></i>
+            <h3 class="ui header text">{{ fullName }}</h3><i class="angle down icon"></i>
             <div class="menu">
                 <div class="item">Stuffz</div>
                 <div class="item">Things</div>
@@ -12,7 +11,8 @@
 
         <br>
 
-        <a class="ui empty circular mini label" v-bind:class="{ 'red': isAway, 'green': !isAway }"></a> {{ username }}
+        <a class="ui empty circular mini label" v-bind:class="{ 'red': isAway, 'green': !isAway }"></a>
+        {{ username }}
     </div>
 </template>
 
