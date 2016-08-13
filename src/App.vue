@@ -35,8 +35,15 @@
     import MessageList from './components/MessageList'
 
     export default {
+        store: ['config'],
         components: {
             UserMenu, ChannelList, DirectMessages, Topic, UserInput, MessageList
+        },
+        ready() {
+            // http://lierc-webui.local:5004/2zfbuYhqSURN2De31RJJ2c/events/johnsolo
+            console.log(this)
+            // const remoteEventSource = new EventSource(`${this.config.rootURL}${this.config.sessionID}/events/${this.config.username}`)
+            // console.log(remoteEventSource)
         }
     }
 </script>
@@ -71,7 +78,8 @@
         padding: 0;
         height: 100%;
         padding: 1rem;
-        overflow: auto;
+        overflow-x: hidden;
+        overflow-y: auto;
         min-width: 210px;
     }
     .layout-right {
