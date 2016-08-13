@@ -1,5 +1,6 @@
 var Completion = function(element) {
   var TAB = 9;
+  var RESET = ""
 
   this.completions = ["lee", "alice", "winston", "john"];
   this.completing = false;
@@ -32,7 +33,7 @@ var Completion = function(element) {
   this.start = function() {
     this.position = this.el.selectionStart;
     this.completing = true
-    this.matches = this.find_matches(this.word()).concat([""]);
+    this.matches = this.find_matches().concat([RESET]);
     this.index = 0;
   };
 
@@ -43,8 +44,7 @@ var Completion = function(element) {
     var start = this.el.value.substring(0, this.position)
     var end = this.matches[this.index++];
 
-    // "" represents returning to no completion, so no space added
-    if (end != "") {
+    if (end != RESET) {
       // add a ":" if this is the first word on the line
       if (start.indexOf(" ") == -1) {
         end += ":";
@@ -61,7 +61,8 @@ var Completion = function(element) {
     this.el.setSelectionRange(length, length);
   }
 
-  this.find_matches = function(word) {
+  this.find_matches = function() {
+    var word = this.last_word();
     var matches = [];
     var length = word.length;
     
@@ -76,7 +77,7 @@ var Completion = function(element) {
     return matches;
   };
 
-  this.word = function() {
+  this.last_word = function() {
     return this.el.value.replace(/.*\s/, "");
   };
 
