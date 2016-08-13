@@ -10,17 +10,9 @@ var Completion = function(element) {
   this.el = element;
 
   this.complete = function(e) {
-    if (e.which == TAB) {
-      e.preventDefault();
-
-      if (! this.completing)
-        this.start();
-
-      this.cycle();
-    }
-    else {
-      this.stop();
-    }
+    if (! this.completing)
+      this.start();
+    this.cycle();
   };
 
   this.stop = function() {
@@ -80,12 +72,4 @@ var Completion = function(element) {
   this.last_word = function() {
     return this.el.value.replace(/.*\s/, "");
   };
-
-  this.el.addEventListener("keydown", this.complete.bind(this), true);
 };
-
-$(document).ready(function() {
-  $('input[type=text]').each(function() {
-    new Completion(this);
-  });
-});
