@@ -11,7 +11,7 @@ export default store
 
 store.startEventStream = function() {
     const eventSource = new EventSource(`${this.config.rootURL}${this.config.sessionID}/events/${this.config.username}`)
-    eventSource.onmessage = function() {
+    eventSource.onmessage = function(event) {
         store.ircEvents.push(JSON.parse(event.data))
     }
     eventSource.onerror = function(event) {
