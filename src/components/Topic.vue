@@ -16,3 +16,9 @@
         }
     }
 </script>
+
+<style scoped>
+    h3.ui.header {
+        margin: 0.5em 0 0.2em;
+    }
+</style>

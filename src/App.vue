@@ -13,7 +13,8 @@
 
             <div class="flex-grow flex-display">
                 <div class="layout-middle flex-grow">
-                    <message-list></message-list>
+                    <debug-list></debug-list>
+                    <!-- <message-list></message-list> -->
                 </div>
                 <div><!-- layout-sidebar --></div>
             </div>
@@ -33,17 +34,15 @@
     import Topic from './components/Topic'
     import UserInput from './components/UserInput'
     import MessageList from './components/MessageList'
+    import DebugList from './components/DebugList'
+    import store from './store'
 
     export default {
-        store: ['config'],
         components: {
-            UserMenu, ChannelList, DirectMessages, Topic, UserInput, MessageList
+            UserMenu, ChannelList, DirectMessages, Topic, UserInput, MessageList, DebugList
         },
         ready() {
-            // http://lierc-webui.local:5004/2zfbuYhqSURN2De31RJJ2c/events/johnsolo
-            console.log(this)
-            // const remoteEventSource = new EventSource(`${this.config.rootURL}${this.config.sessionID}/events/${this.config.username}`)
-            // console.log(remoteEventSource)
+            store.startEventStream()
         }
     }
 </script>
@@ -85,7 +84,6 @@
     .layout-right {
     }
     .layout-top {
-        padding: 1em 0;
     }
     .layout-middle {
         /*min-width: 320px;*/
