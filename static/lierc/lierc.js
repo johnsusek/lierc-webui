@@ -35,7 +35,7 @@ var Liercd = function(url) {
   };
 };
 
-var liercd = new Liercd("http://prettybrd.com/chat");
+var liercd = new Liercd("/api");
 
 liercd.on("connection", function(connection) {
   connection.on("open", function() {
