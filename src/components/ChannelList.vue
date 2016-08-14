@@ -1,36 +1,18 @@
 <template>
     <div>
-        Channels <span class="muted">({{ channels.length }})</span> <i class=" muted add circle link icon"></i>
+        Channels <span class="muted">({{ channels.length }})</span> <i class="muted add circle link icon"></i>
 
         <div class="ui small vertical menu">
-            <a v-for="channel in channels" class="item">{{ channel }}</a>
+            <a v-for="channel in channels" class="item">
+                {{ channel.name }}
+                <div v-if="channel.users" class="ui label">{{ channel.users.length }}</div>
+            </a>
         </div>
     </div>
 </template>
 
 <script>
     export default {
-        data() {
-            return {
-                channels: ['#perl', '#javascript', '#golang', '#python']
-            }
-        }
+        store: ['channels']
     }
 </script>
-
-<style scoped>
-    .muted.add.circle.icon {
-        float: right;
-        margin-top: 1px;
-    }
-    .ui.secondary.inverted.menu a.item {
-        line-height: 0.5rem;
-        color: rgba(255,255,255,0.4) !important;
-    }
-    .ui.secondary.inverted.menu a.active.item {
-        color: #fff !important;
-    }
-    .ui.secondary.inverted.menu a.item.highlighted {
-        color: rgba(255,255,255,1) !important;
-    }
-</style>

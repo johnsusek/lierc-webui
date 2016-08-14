@@ -4,8 +4,8 @@
             <user-menu></user-menu>
             <br>
             <channel-list></channel-list>
-            <br>
-            <direct-messages></direct-messages>
+            <!-- <br> -->
+            <!-- <direct-messages></direct-messages> -->
         </div>
 
         <div class="layout-right flex-grow flex-column flex-display">
@@ -14,7 +14,6 @@
             <div class="flex-grow flex-display">
                 <div class="layout-middle flex-grow">
                     <console></console>
-                    <!-- <debug-list></debug-list> -->
                     <!-- <message-list></message-list> -->
                 </div>
                 <div><!-- layout-sidebar --></div>
@@ -35,19 +34,18 @@
     import Topic from './components/Topic'
     import UserInput from './components/UserInput'
     import MessageList from './components/MessageList'
-    import DebugList from './components/DebugList'
     import Console from './components/Console'
-    import actions from './actions'
+    import ircEventStream from './store/ircEventStream'
 
     export default {
         components: {
-            UserMenu, ChannelList, DirectMessages, Topic, UserInput, MessageList, DebugList, Console
+            UserMenu, ChannelList, DirectMessages, Topic, UserInput, MessageList, Console
         },
         ready() {
-            actions.openIRCEventStream()
+            ircEventStream.open()
         },
         beforeDestroy() {
-            actions.closeIRCEventStream()
+            ircEventStream.close()
         }
     }
 </script>

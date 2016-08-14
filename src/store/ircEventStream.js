@@ -1,3 +1,8 @@
+/** ircEventStream connects to lierc, and starts listening for server-sent events
+ *  coming in. When an event arrives it updates our Vue store
+ *  depending on the IRC command in the event (JOIN, PART, or a numeric code [see replyNames]).
+ */
+
 import store from '../store'
 
 const ircEventStream = {}
@@ -11,7 +16,6 @@ ircEventStream.open = function() {
         switch (event.type) {
         case 'irc':
             const eventData = JSON.parse(event.data)
-            store.ircEvents.push(eventData) // for any components that just want a raw data feed of the irc events
             ircEventStream.parseEvent(eventData)
             break
         case 'ping':
@@ -40,36 +44,56 @@ ircEventStream.parseEvent = function(e) {
         console.log('Command to parse: ', e.Command, e)
     }
 
-    const msg = { command: e.Command, timestamp: Date(e.Time) }
+    const consoleMessage = { command: e.Command, timestamp: Date(e.Time) }
 
     switch (e.Command) {
     case 'JOIN':
-        msg.message = `${e.Params[0]} by ${e.Prefix.Name}`
+        consoleMessage.message = `${e.Params[0]} by ${e.Prefix.Name}`
+        if (e.Prefix.Name === store.connection.username) {
+            store.createOrUpdateChannel(normalizeChannelName(e.Params[0]), { isJoined: true })
+        }
+        else {
+            store.addMessageToChannel(normalizeChannelName(e.Params[0]), `JOIN by ${e.Prefix.Name}`, { type: 'system', timestamp: Date(e.Time) })
+        }
         break
     case 'PART':
-        msg.message = `${e.Params[0]} by ${e.Prefix.Name}`
+        consoleMessage.message = `${e.Params[0]} by ${e.Prefix.Name}`
+        if (e.Prefix.Name === store.connection.username) {
+            store.createOrUpdateChannel(normalizeChannelName(e.Params[0]), { isJoined: false })
+        }
         break
     case 'QUIT':
         // Params[0] is the quit message
-        msg.message = `${e.Params[0]} by ${e.Prefix.Name}`
+        consoleMessage.message = `"${e.Params[0]}" by ${e.Prefix.Name}`
         break
     case 'PRIVMSG':
-        msg.message = `PRIVMSG "${e.Params[1]}" to channel ${e.Params[0]} by ${e.Prefix.Name}`
+        store.addMessageToChannel(normalizeChannelName(e.Params[0]), e.Params[1], { type: 'user', user: e.Prefix.Name, timestamp: Date(e.Time) })
+        consoleMessage.message = `"${e.Params[1]}" to channel ${e.Params[0]} by ${e.Prefix.Name}`
         break
     case 'TOPIC':
-        msg.message = `${e.Params[0]} to "${e.Params[1]}" by ${e.Prefix.Name}`
+        consoleMessage.message = `${e.Params[0]} to "${e.Params[1]}" by ${e.Prefix.Name}`
         break
     case 'RPL_TOPIC':
-        msg.message = `The user ${e.Params[0]} in channel ${e.Params[1]} had set topic "${e.Params[2]}"`
+        // The first param always seems to be your own username
+        store.connection.username = e.Params[0]
+        store.createOrUpdateChannel(normalizeChannelName(e.Params[1]), { topic: e.Params[2] })
+        consoleMessage.message = `The user (you) ${e.Params[0]} in channel ${e.Params[1]} had requested topic, which is: "${e.Params[2]}"`
         break
     case 'NICK':
-        msg.message = `${e.Params[0]} from ${e.Prefix.Name}`
+        consoleMessage.message = `${e.Params[0]} from ${e.Prefix.Name}`
         break
     case 'RPL_NAMREPLY':
-        msg.message = `The user ${e.Params[0]} (${e.Params[1]})? is in channel ${e.Params[2]} with users "${e.Params[3]}"`
+        // The first param always seems to be your own username
+        store.connection.username = e.Params[0]
+        const users = e.Params[3].split(' ')
+        store.createOrUpdateChannel(normalizeChannelName(e.Params[2]), {
+            users,
+            isJoined: users.indexOf(store.connection.username) > -1
+        })
+        consoleMessage.message = `The user (you) ${e.Params[0]} (${e.Params[1]})? is in channel ${e.Params[2]} with users "${e.Params[3]}"`
         break
     case 'RPL_ENDOFNAMES':
-        msg.message = 'The previous NAMES reply was the last.'
+        consoleMessage.message = 'The previous NAMES reply was the last.'
         break
     case 'RPL_WELCOME': // Note https://github.com/martynsmith/node-irc/blob/master/lib/irc.js#L123
     case 'RPL_YOURHOST':
@@ -80,16 +104,20 @@ ircEventStream.parseEvent = function(e) {
     case 'RPL_MOTDSTART':
     case 'RPL_ENDOFMOTD':
     case 'ERR_NOMOTD':
-        msg.message = e.Params[1]
+        consoleMessage.message = e.Params[1]
         break
     case 'PING':
         break
     default:
-        msg.message = 'Unknown IRC command'
+        consoleMessage.message = 'Unknown IRC command'
         console.warn('found an irc command we didn\'t handle:', e.Command, e)
     }
 
-    store.console.messages.push(msg)
+    store.console.messages.push(consoleMessage)
+}
+
+function normalizeChannelName(name) {
+    return name.replace(/#+/, '#')
 }
 
 // https://tools.ietf.org/html/rfc1459#section-4

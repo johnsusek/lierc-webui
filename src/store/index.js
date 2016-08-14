@@ -1,3 +1,5 @@
+import _ from 'lodash'
+
 const store = {
     apiConfig: {
         username: 'johnsolo',
@@ -7,34 +9,34 @@ const store = {
     interface: {
         activeChannelOrDirectMessage: '#example' // or a username
     },
-    ircEvents: [],
-    connections: [
-        {
-            id: 'apiGeneratedString',
-            isConnected: true,
-            server: 'irc.freenode.com',
-            port: '6667',
-            ssl: false,
-            nickname: 'Jane Doe',
-            username: 'janedoe',
-            password: 'secret',
-            autoJoinChannels: ['#example', '#example2']
-        }
-    ],
+    connection: {
+        id: '',
+        isConnected: true,
+        server: '',
+        port: '',
+        ssl: false,
+        nickname: '',
+        username: '',
+        password: '',
+        autoJoinChannels: []
+    },
     console: {
-        messages: []
+        messages: [
+            // { message: '', command: '', timestamp: Date() }
+        ]
     },
     channels: [
-        {
-            name: '#example',
-            topic: 'Example topic.',
-            users: ['alice', 'bob', 'charlie'],
-            isJoined: true,
-            unreadCount: 0,
-            messages: [
-                { user: 'alice', message: 'content', timestamp: Date() }
-            ]
-        }
+        // {
+        //     name: '#example',
+        //     topic: 'Example topic.',
+        //     users: ['alice', 'bob', 'charlie'],
+        //     isJoined: true,
+        //     unreadCount: 0,
+        //     messages: [
+        //         { type: user, user: 'alice', message: 'content', timestamp: Date() },
+        //         { type: system, message: 'content', timestamp: Date() }
+        //     ]
+        // }
     ],
     directMessages: [
         {
@@ -49,3 +51,37 @@ const store = {
 }
 
 export default store
+
+store.createOrUpdateChannel = function(name, {isJoined, topic, users}) {
+    const channel = _.find(this.channels, ['name', name])
+
+    if (channel) {
+        if (isJoined) {
+            channel.isJoined = true
+        }
+        if (topic) {
+            channel.topic = topic
+        }
+        if (users) {
+            channel.users = users
+        }
+    }
+    else {
+        this.channels.push({ name, topic, users, isJoined })
+    }
+}
+
+store.addMessageToChannel = function(channelName, message, { type, user, timestamp }) {
+    const channel = _.find(this.channels, ['name', channelName])
+
+    if (channel) {
+        if (!channel.messages) {
+            channel.messages = []
+        }
+        channel.messages.push({ type, user, message, timestamp })
+    }
+    else {
+        console.error('Tried to send message to channel that doesn\'t exist')
+    }
+}
+

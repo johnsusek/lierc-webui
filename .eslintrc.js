@@ -18,6 +18,7 @@ module.exports = {
     // allow paren-less arrow functions
     "indent": ["error", 4],
     'arrow-parens': 0,
+    'brace-style': ["error", "stroustrup"],
     'space-before-function-paren': ["error", "never"],
     // allow async-await
     'generator-star-spacing': 0,
