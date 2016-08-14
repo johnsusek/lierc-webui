@@ -1,15 +1,18 @@
+import ircEventStream from './ircEventStream'
+
 const store = {
-    config: {
+    apiConfig: {
         username: 'johnsolo',
         rootURL: 'http://lierc-webui.local:5004/',
         sessionID: '2zfbuYhqSURN2De31RJJ2c'
     },
-    ircEvents: [],
     interface: {
         activeChannelOrDirectMessage: '#example' // or a username
     },
+    ircEvents: [],
     connections: [
         {
+            id: 'apiGeneratedString',
             isConnected: true,
             server: 'irc.freenode.com',
             port: '6667',
@@ -20,6 +23,12 @@ const store = {
             autoJoinChannels: ['#example', '#example2']
         }
     ],
+    console: {
+        messages: [
+            { message: 'content', timestamp: Date() },
+            { message: 'content', timestamp: Date() }
+        ]
+    },
     channels: [
         {
             name: '#example',
@@ -46,13 +55,10 @@ const store = {
 
 export default store
 
-store.startEventStream = function() {
-    const eventSource = new EventSource(`${this.config.rootURL}${this.config.sessionID}/events/${this.config.username}`)
-    eventSource.onmessage = function(event) {
-        store.ircEvents.push(JSON.parse(event.data))
-    }
-    eventSource.onerror = function(event) {
-        console.error(event)
-    }
+store.startIRCEventStream = function() {
+    ircEventStream.start()
 }
 
+store.closeIRCEventStream = function() {
+    ircEventStream.close()
+}

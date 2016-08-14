@@ -13,7 +13,8 @@
 
             <div class="flex-grow flex-display">
                 <div class="layout-middle flex-grow">
-                    <debug-list></debug-list>
+                    <console></console>
+                    <!-- <debug-list></debug-list> -->
                     <!-- <message-list></message-list> -->
                 </div>
                 <div><!-- layout-sidebar --></div>
@@ -35,14 +36,18 @@
     import UserInput from './components/UserInput'
     import MessageList from './components/MessageList'
     import DebugList from './components/DebugList'
+    import Console from './components/Console'
     import store from './store'
 
     export default {
         components: {
-            UserMenu, ChannelList, DirectMessages, Topic, UserInput, MessageList, DebugList
+            UserMenu, ChannelList, DirectMessages, Topic, UserInput, MessageList, DebugList, Console
         },
         ready() {
-            store.startEventStream()
+            store.startIRCEventStream()
+        },
+        beforeDestroy() {
+            store.closeIRCEventStream()
         }
     }
 </script>
