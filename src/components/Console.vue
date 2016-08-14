@@ -1,9 +1,13 @@
 <template>
-    <div class="ui">
-        <div v-for="message in console.messages" class="ui vertical basic segment">
-            <div class="ui small basic label">{{ message.timestamp }}</div>
-            <div class="ui small basic label">{{ message.command }}</div>
-            <br>{{ message.message }}
+    <div class="ui small feed">
+        <div v-for="message in console.messages" class="event">
+            <div class="content">
+                <div class="summary">
+                    {{ message.command }}
+                    <div class="date">{{ message.timestamp }}</div>
+                </div>
+                {{ message.message }}
+            </div>
         </div>
     </div>
 </template>
@@ -17,3 +21,5 @@
     }
 </script>
 
+<style scoped>
+</style>

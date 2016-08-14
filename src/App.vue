@@ -92,7 +92,7 @@
     }
     .layout-middle {
         /*min-width: 320px;*/
-        padding: 0 0;
+        padding: 0 1em 0 0;
         overflow: auto;
         color: #000;
     }

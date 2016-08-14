@@ -32,12 +32,12 @@ ircEventStream.close = function() {
 }
 
 ircEventStream.parseEvent = function(e) {
-    if (e.Command !== 'PING') {
-        console.log('Command to parse: ', e.Command, e)
-    }
-
     if (replyNames[e.Command]) {
         e.Command = replyNames[e.Command]
+    }
+
+    if (e.Command !== 'PING') {
+        console.log('Command to parse: ', e.Command, e)
     }
 
     const msg = { command: e.Command, timestamp: Date(e.Time) }
