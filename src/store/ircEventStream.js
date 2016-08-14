@@ -44,32 +44,32 @@ ircEventStream.parseEvent = function(e) {
 
     switch (e.Command) {
     case 'JOIN':
-        msg.message = `JOIN channel ${e.Params[0]} by ${e.Prefix.Name}`
+        msg.message = `${e.Params[0]} by ${e.Prefix.Name}`
         break
     case 'PART':
-        msg.message = `PART channel ${e.Params[0]} by ${e.Prefix.Name}`
+        msg.message = `${e.Params[0]} by ${e.Prefix.Name}`
         break
     case 'QUIT':
         // Params[0] is the quit message
-        msg.message = `QUIT irc ${e.Params[0]} by ${e.Prefix.Name}`
+        msg.message = `${e.Params[0]} by ${e.Prefix.Name}`
         break
     case 'PRIVMSG':
         msg.message = `PRIVMSG "${e.Params[1]}" to channel ${e.Params[0]} by ${e.Prefix.Name}`
         break
     case 'TOPIC':
-        msg.message = `TOPIC in channel ${e.Params[0]} to "${e.Params[1]}" by ${e.Prefix.Name}`
+        msg.message = `${e.Params[0]} to "${e.Params[1]}" by ${e.Prefix.Name}`
         break
     case 'RPL_TOPIC':
-        msg.message = `REPLY: TOPIC. The user ${e.Params[0]} in channel ${e.Params[1]} had set topic "${e.Params[2]}"`
+        msg.message = `The user ${e.Params[0]} in channel ${e.Params[1]} had set topic "${e.Params[2]}"`
         break
     case 'NICK':
-        msg.message = `NICK to ${e.Params[0]} from ${e.Prefix.Name}`
+        msg.message = `${e.Params[0]} from ${e.Prefix.Name}`
         break
     case 'RPL_NAMREPLY':
-        msg.message = `REPLY: NAMES. The user ${e.Params[0]} (${e.Params[1]})? is in channel ${e.Params[2]} with users "${e.Params[3]}"`
+        msg.message = `The user ${e.Params[0]} (${e.Params[1]})? is in channel ${e.Params[2]} with users "${e.Params[3]}"`
         break
     case 'RPL_ENDOFNAMES':
-        msg.message = 'REPLY: NAMES. The previous NAMES reply was the last.'
+        msg.message = 'The previous NAMES reply was the last.'
         break
     case 'RPL_WELCOME': // Note https://github.com/martynsmith/node-irc/blob/master/lib/irc.js#L123
     case 'RPL_YOURHOST':
