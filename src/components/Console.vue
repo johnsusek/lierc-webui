@@ -1,7 +1,9 @@
 <template>
     <div class="ui">
-        <div v-for="message in console.messages" class="ui vertical segment">
-            {{ message.timestamp }} - {{ message.message }}
+        <div v-for="message in console.messages" class="ui vertical basic segment">
+            <div class="ui small basic label">{{ message.timestamp }}</div>
+            <div class="ui small basic label">{{ message.command }}</div>
+            <br>{{ message.message }}
         </div>
     </div>
 </template>

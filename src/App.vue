@@ -37,17 +37,17 @@
     import MessageList from './components/MessageList'
     import DebugList from './components/DebugList'
     import Console from './components/Console'
-    import store from './store'
+    import actions from './actions'
 
     export default {
         components: {
             UserMenu, ChannelList, DirectMessages, Topic, UserInput, MessageList, DebugList, Console
         },
         ready() {
-            store.startIRCEventStream()
+            actions.openIRCEventStream()
         },
         beforeDestroy() {
-            store.closeIRCEventStream()
+            actions.closeIRCEventStream()
         }
     }
 </script>

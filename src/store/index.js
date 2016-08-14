@@ -1,10 +1,8 @@
-import ircEventStream from './ircEventStream'
-
 const store = {
     apiConfig: {
         username: 'johnsolo',
-        rootURL: 'http://lierc-webui.local:5004/',
-        sessionID: '2zfbuYhqSURN2De31RJJ2c'
+        rootURL: 'http://lierc-webui.local:8080/api/',
+        sessionID: '6rP54rZ8J8ot2tZqo521EZ'
     },
     interface: {
         activeChannelOrDirectMessage: '#example' // or a username
@@ -24,10 +22,7 @@ const store = {
         }
     ],
     console: {
-        messages: [
-            { message: 'content', timestamp: Date() },
-            { message: 'content', timestamp: Date() }
-        ]
+        messages: []
     },
     channels: [
         {
@@ -54,11 +49,3 @@ const store = {
 }
 
 export default store
-
-store.startIRCEventStream = function() {
-    ircEventStream.start()
-}
-
-store.closeIRCEventStream = function() {
-    ircEventStream.close()
-}
