@@ -8,3 +8,8 @@
     }
 </script>
 
+<style scoped>
+    h3.ui.header {
+        margin-bottom: 0;
+    }
+</style>
