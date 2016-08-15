@@ -9,6 +9,8 @@
                 <div v-if="channel.isJoined">isJoined</div>
                 <div v-if="channel.users">U: {{ channel.users.length }}</div>
                 <div v-if="channel.messages">M: {{ channel.messages.length }}</div>
+                <br><br>
+                <div v-if="channel.messages">Last: {{ channel.messages[channel.messages.length-1].message }}</div>
             </a>
         </div>
     </div>
