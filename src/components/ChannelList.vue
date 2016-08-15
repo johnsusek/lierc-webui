@@ -4,8 +4,11 @@
 
         <div class="ui small vertical menu">
             <a v-for="channel in channels" class="item">
-                {{ channel.name }}
-                <div v-if="channel.users" class="ui label">{{ channel.users.length }}</div>
+                <span class="content">{{ channel.name }}</span>
+                <span class="ui label">{{ channel.unreadCount }}</span>
+                <div v-if="channel.isJoined">isJoined</div>
+                <div v-if="channel.users">U: {{ channel.users.length }}</div>
+                <div v-if="channel.messages">M: {{ channel.messages.length }}</div>
             </a>
         </div>
     </div>

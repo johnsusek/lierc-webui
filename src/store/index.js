@@ -2,9 +2,7 @@ import _ from 'lodash'
 
 const store = {
     apiConfig: {
-        username: 'johnsolo',
-        rootURL: 'http://lierc-webui.local:8080/api/',
-        sessionID: '6rP54rZ8J8ot2tZqo521EZ'
+        ircEventsURL: 'http://lierc-webui.local:8080/api/events'
     },
     interface: {
         activeChannelOrDirectMessage: '#example' // or a username
@@ -16,7 +14,7 @@ const store = {
         port: '',
         ssl: false,
         nickname: '',
-        username: '',
+        username: 'johnsolo',
         password: '',
         autoJoinChannels: []
     },
@@ -52,7 +50,7 @@ const store = {
 
 export default store
 
-store.createOrUpdateChannel = function(name, {isJoined, topic, users}) {
+store.createOrUpdateChannel = function(name, { isJoined, topic, users }) {
     const channel = _.find(this.channels, ['name', name])
 
     if (channel) {
@@ -67,7 +65,7 @@ store.createOrUpdateChannel = function(name, {isJoined, topic, users}) {
         }
     }
     else {
-        this.channels.push({ name, topic, users, isJoined })
+        this.channels.push({ name, topic, users, isJoined, unreadCount: 0, messages: [] })
     }
 }
 

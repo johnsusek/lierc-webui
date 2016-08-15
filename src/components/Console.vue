@@ -16,7 +16,9 @@
     export default {
         store: ['console'],
         ready() {
-            this.$watch('console.messages', () => { this.$el.parentNode.scrollTop = this.$el.parentNode.scrollHeight })
+            this.$watch('console.messages', () => {
+                this.$el.parentNode.scrollTop = this.$el.parentNode.scrollHeight
+            })
         }
     }
 </script>
