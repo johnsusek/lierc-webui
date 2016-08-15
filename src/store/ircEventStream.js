@@ -44,57 +44,83 @@ ircEventStream.parseEvent = function(e) {
         console.log('Command to parse: ', e.Message.Command, e)
     }
 
-    const consoleMessage = { command: e.Message.Command, timestamp: Date(e.Time) }
+    const consoleMessage = { command: e.Message.Command, timestamp: Date(e.Message.Time) }
 
     switch (e.Message.Command) {
+
     case 'JOIN':
-        consoleMessage.message = `${e.Message.Params[0]} by ${e.Message.Prefix.Name}`
+    case 'PART':
+    case 'PRIVMSG':
+    case 'TOPIC':
+        var channel = normalizeChannelName(e.Message.Params[0])
+        break
+
+    }
+
+    switch (e.Message.Command) {
+
+    case 'JOIN':
+        consoleMessage.message = `${channel} by ${e.Message.Prefix.Name}`
         if (e.Message.Prefix.Name === store.connection.username) {
-            store.createOrUpdateChannel(normalizeChannelName(e.Message.Params[0]), { isJoined: true })
+            store.createOrUpdateChannel(channel, { isJoined: true })
         }
         else {
-            store.addMessageToChannel(normalizeChannelName(e.Message.Params[0]), `JOIN by ${e.Message.Prefix.Name}`, { type: 'system', timestamp: Date(e.Time) })
+            store.addMessageToChannel(channel, `JOIN by ${e.Message.Prefix.Name}`, { type: 'system', timestamp: Date(e.Message.Time) })
         }
+        store.addUserToChannel(channel, e.Message.Prefix.Name)
         break
+
     case 'PART':
-        consoleMessage.message = `${e.Message.Params[0]} by ${e.Message.Prefix.Name}`
+        consoleMessage.message = `${channel} by ${e.Message.Prefix.Name}`
         if (e.Message.Prefix.Name === store.connection.username) {
-            store.createOrUpdateChannel(normalizeChannelName(e.Message.Params[0]), { isJoined: false })
+            store.createOrUpdateChannel(channel, { isJoined: false })
         }
+        else {
+            store.addMessageToChannel(channel, `PART by ${e.Message.Prefix.Name}`, { type: 'system', timestamp: Date(e.Message.Time) })
+        }
+        store.removeUserFromChannel(channel, e.Message.Prefix.Name)
         break
-    case 'QUIT':
-        // Params[0] is the quit message
-        consoleMessage.message = `"${e.Message.Params[0]}" by ${e.Message.Prefix.Name}`
-        break
+
     case 'PRIVMSG':
-        store.addMessageToChannel(normalizeChannelName(e.Message.Params[0]), e.Message.Params[1], { type: 'user', user: e.Message.Prefix.Name, timestamp: Date(e.Time) })
-        consoleMessage.message = `"${e.Message.Params[1]}" to channel ${e.Message.Params[0]} by ${e.Message.Prefix.Name}`
+        consoleMessage.message = `"${e.Message.Params[1]}" to channel ${channel} by ${e.Message.Prefix.Name}`
+        store.addMessageToChannel(channel, e.Message.Params[1], { type: 'user', user: e.Message.Prefix.Name, timestamp: Date(e.Message.Time) })
         break
+
     case 'TOPIC':
-        consoleMessage.message = `${e.Message.Params[0]} to "${e.Message.Params[1]}" by ${e.Message.Prefix.Name}`
+        consoleMessage.message = `${channel} to "${e.Message.Params[1]}" by ${e.Message.Prefix.Name}`
+        store.addMessageToChannel(channel, `Topic changed to "${e.Message.Params[1]}" by ${e.Message.Prefix.Name}`, { type: 'system', timestamp: Date(e.Message.Time) })
+        store.setTopicForChannel(channel, e.Message.Params[1])
         break
-    case 'RPL_TOPIC':
-        // The first param always seems to be your own username
-        store.connection.username = e.Message.Params[0]
-        store.createOrUpdateChannel(normalizeChannelName(e.Message.Params[1]), { topic: e.Message.Params[2] })
-        consoleMessage.message = `The user (you) ${e.Message.Params[0]} in channel ${e.Message.Params[1]} had requested topic, which is: "${e.Message.Params[2]}"`
-        break
+
     case 'NICK':
         consoleMessage.message = `${e.Message.Params[0]} from ${e.Message.Prefix.Name}`
+        store.addMessageToChannel(channel, `${e.Message.Prefix.Name} changed nickname to ${e.Message.Params[0]}`, { type: 'system', timestamp: Date(e.Message.Time) })
+        store.renameUser(e.Message.Prefix.Name, e.Message.Params[0])
         break
-    case 'RPL_NAMREPLY':
-        // The first param always seems to be your own username
+
+    case 'QUIT':
+        consoleMessage.message = `"${e.Message.Params[0]}" by ${e.Message.Prefix.Name}`
+        store.quitUser(e.Message.Prefix.Name, Date(e.Message.Time))
+        break
+
+    case 'RPL_TOPIC':
+        consoleMessage.message = `The user (you) ${e.Message.Params[0]} in channel ${e.Message.Params[1]} had requested topic, which is: "${e.Message.Params[2]}"`
         store.connection.username = e.Message.Params[0]
-        const users = e.Message.Params[3].split(' ')
-        store.createOrUpdateChannel(normalizeChannelName(e.Message.Params[2]), {
-            users,
-            isJoined: users.indexOf(store.connection.username) > -1
-        })
-        consoleMessage.message = `The user (you) ${e.Message.Params[0]} (${e.Message.Params[1]})? is in channel ${e.Message.Params[2]} with users "${e.Message.Params[3]}"`
+        store.createOrUpdateChannel(normalizeChannelName(e.Message.Params[1]), { topic: e.Message.Params[2] })
         break
+
+    case 'RPL_NAMREPLY':
+        consoleMessage.message = `The user (you) ${e.Message.Params[0]} (${e.Message.Params[1]})? is in channel ${e.Message.Params[2]} with users "${e.Message.Params[3]}"`
+        store.connection.username = e.Message.Params[0]
+        const users = e.Message.Params[3].split(' ').sort()
+        const isJoined = users.indexOf(store.connection.username) >= 0
+        store.createOrUpdateChannel(normalizeChannelName(e.Message.Params[2]), { users, isJoined })
+        break
+
     case 'RPL_ENDOFNAMES':
         consoleMessage.message = 'The previous NAMES reply was the last.'
         break
+
     case 'RPL_WELCOME': // Note https://github.com/martynsmith/node-irc/blob/master/lib/irc.js#L123
     case 'RPL_YOURHOST':
     case 'RPL_CREATED':
@@ -106,11 +132,13 @@ ircEventStream.parseEvent = function(e) {
     case 'ERR_NOMOTD':
         consoleMessage.message = e.Message.Params[1]
         break
+
     case 'PING':
         break
+
     default:
         consoleMessage.message = 'Unknown IRC command'
-        console.warn('found an irc command we didn\'t handle:', e.Message.Command, e)
+        console.warn('Found an irc command we didn\'t handle:', e.Message.Command, e)
     }
 
     store.console.messages.push(consoleMessage)
