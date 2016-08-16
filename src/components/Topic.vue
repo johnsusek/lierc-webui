@@ -1,17 +1,18 @@
 <template>
-    <h3 class="ui header">
-        {{ channel }}
-        <div class="sub header muted">{{ users }} users &mdash; {{ topic }}</div>
+    <h3 v-if="activeChannel" class="ui header">
+        {{ activeChannel.name }}
+        <div class="sub header muted">{{ activeChannel.users.length }} users &mdash; {{ activeChannel.topic }}</div>
     </h3>
 </template>
 
 <script>
+    import _ from 'lodash'
+
     export default {
-        data() {
-            return {
-                channel: '#perl',
-                users: 2,
-                topic: 'Here\'s a topic: Let\'s chat!'
+        store: ['channels'],
+        computed: {
+            activeChannel() {
+                return _.find(this.channels, 'isBeingViewed')
             }
         }
     }

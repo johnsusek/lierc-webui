@@ -4,7 +4,6 @@
             <user-menu></user-menu>
             <br>
             <channel-list></channel-list>
-            <!-- <br> -->
             <!-- <direct-messages></direct-messages> -->
         </div>
 
@@ -16,7 +15,7 @@
                     <console></console>
                     <!-- <message-list></message-list> -->
                 </div>
-                <div><!-- layout-sidebar --></div>
+                <div><!-- layout-inspector --></div>
             </div>
 
             <div class="layout-bottom">

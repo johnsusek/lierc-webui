@@ -4,12 +4,9 @@ const store = {
     apiConfig: {
         ircEventsURL: 'http://lierc-webui.local:8080/api/events'
     },
-    interface: {
-        activeChannelOrDirectMessage: '#example' // or a username
-    },
     connection: {
         id: '',
-        isConnected: true,
+        isConnected: false,
         server: '',
         port: '',
         ssl: false,
@@ -27,9 +24,10 @@ const store = {
         // {
         //     name: '#example',
         //     topic: 'Example topic.',
-        //     users: ['alice', 'bob', 'charlie'],
         //     isJoined: true,
+        //     isBeingViewed: true,
         //     unreadCount: 0,
+        //     users: ['alice', 'bob', 'charlie'],
         //     messages: [
         //         { type: 'user',   user: 'alice', message: 'content', timestamp: Date() },
         //         { type: 'system',                message: 'content', timestamp: Date() }
@@ -50,29 +48,43 @@ const store = {
 
 export default store
 
-store.createOrUpdateChannel = function(name, { isJoined, topic, users }) {
+store.createChannel = function(name) {
     const channel = _.find(this.channels, ['name', name])
 
     if (channel) {
-        if (isJoined) {
-            channel.isJoined = true
-        }
-        if (topic) {
-            channel.topic = topic
-        }
-        if (users) {
-            channel.users = _.uniq(channel.users.concat(users)).sort()
-        }
+        console.error('Tried to create a channel that already exists', name)
+        return
     }
-    else {
-        this.channels.push({
-            name,
-            topic: topic || '',
-            users: users || [],
-            isJoined: !!isJoined,
-            unreadCount: 0,
-            messages: []
-        })
+
+    this.channels.push({
+        name,
+        topic: '',
+        users: [],
+        isJoined: true,
+        isBeingViewed: false,
+        unreadCount: 0,
+        messages: []
+    })
+}
+
+store.updateChannel = function(name, { isJoined, topic, users }) {
+    const channel = _.find(this.channels, ['name', name])
+
+    if (!channel) {
+        console.error('Tried to update a channel that doesn\'t exist', name, arguments[1])
+        return
+    }
+
+    if (isJoined !== undefined) {
+        channel.isJoined = isJoined
+    }
+
+    if (topic !== undefined) {
+        channel.topic = topic
+    }
+
+    if (users !== undefined) {
+        channel.users = _.uniq(channel.users.concat(users)).sort()
     }
 }
 
@@ -86,7 +98,7 @@ store.addMessageToChannel = function(channelName, message, { type, user, timesta
         channel.messages.push({ type, user, message, timestamp })
     }
     else {
-        console.error('Tried to send message to channel that doesn\'t exist')
+        console.error('Tried to send message to channel that doesn\'t exist', channelName, message)
     }
 }
 
@@ -110,13 +122,15 @@ store.removeUserFromChannel = function(channelName, user) {
 
     if (!channel.users) {
         console.warn('Tried to remove user from an undefined user list')
+        return
     }
-    else if (channel.users.indexOf(user) < 0) {
+
+    if (channel.users.indexOf(user) < 0) {
         console.warn('Tried to remove user from a channel they weren\'t in')
+        return
     }
-    else {
-        channel.users = _.without(channel.users, user)
-    }
+
+    channel.users = _.without(channel.users, user)
 }
 
 store.renameUser = function(oldName, newName) {
@@ -135,9 +149,4 @@ store.quitUser = function(user, timestamp) {
             channel.users = _.without(channel.users, user)
         }
     })
-}
-
-store.setTopicForChannel = function(channelName, topic) {
-    const channel = _.find(this.channels, ['name', channelName])
-    channel.topic = topic
 }
