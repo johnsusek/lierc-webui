@@ -12,8 +12,8 @@
 
             <div class="flex-grow flex-display">
                 <div class="layout-middle flex-grow">
-                    <console></console>
-                    <!-- <message-list></message-list> -->
+                    <console v-show="!activeChannel"></console>
+                    <message-list v-show="activeChannel" :active-channel="activeChannel"></message-list>
                 </div>
                 <div><!-- layout-inspector --></div>
             </div>
@@ -34,17 +34,24 @@
     import UserInput from './components/UserInput'
     import MessageList from './components/MessageList'
     import Console from './components/Console'
-    import ircEventStream from './store/ircEventStream'
+    import liercEventStream from './store/liercEventStream'
+    import _ from 'lodash'
 
     export default {
+        store: ['channels'],
         components: {
             UserMenu, ChannelList, DirectMessages, Topic, UserInput, MessageList, Console
         },
         ready() {
-            ircEventStream.open()
+            liercEventStream.open()
         },
         beforeDestroy() {
-            ircEventStream.close()
+            liercEventStream.close()
+        },
+        computed: {
+            activeChannel() {
+                return _.find(this.channels, 'isBeingViewed') || { messages: [] }
+            }
         }
     }
 </script>

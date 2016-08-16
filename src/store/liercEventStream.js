@@ -1,22 +1,22 @@
-/** ircEventStream connects to lierc, and starts listening for server-sent events
+/** liercEventStream connects to lierc, and starts listening for server-sent events
  *  coming in. When an event arrives it updates our Vue store
  *  depending on the IRC command in the event (JOIN, PART, or a numeric code [see replyNames]).
  */
 
 import store from '../store'
 
-const ircEventStream = {}
+const liercEventStream = {}
 
-export default ircEventStream
+export default liercEventStream
 
-ircEventStream.open = function() {
+liercEventStream.open = function() {
     const source = new EventSource(store.apiConfig.ircEventsURL)
 
     source.addEventListener('irc', (event) => {
         switch (event.type) {
         case 'irc':
             const eventData = JSON.parse(event.data)
-            ircEventStream.parseEvent(eventData)
+            liercEventStream.parseEvent(eventData)
             break
         case 'ping':
             break
@@ -31,11 +31,11 @@ ircEventStream.open = function() {
     })
 }
 
-ircEventStream.close = function() {
+liercEventStream.close = function() {
     this.eventSource.close()
 }
 
-ircEventStream.parseEvent = function(e) {
+liercEventStream.parseEvent = function(e) {
     if (replyNames[e.Message.Command]) {
         e.Message.Command = replyNames[e.Message.Command]
     }
@@ -89,13 +89,12 @@ ircEventStream.parseEvent = function(e) {
     case 'TOPIC':
         consoleMessage.message = `${channel} to "${e.Message.Params[1]}" by ${e.Message.Prefix.Name}`
         store.addMessageToChannel(channel, `Topic changed to "${e.Message.Params[1]}" by ${e.Message.Prefix.Name}`, { type: 'system', timestamp: Date(e.Message.Time) })
-        store.updateChannel(normalizeChannelName(e.Message.Params[2]), { topic: e.Message.Params[1] })
+        store.updateChannel(channel, { topic: e.Message.Params[1] })
         break
 
     case 'NICK':
         consoleMessage.message = `${e.Message.Params[0]} from ${e.Message.Prefix.Name}`
-        store.addMessageToChannel(channel, `${e.Message.Prefix.Name} changed nickname to ${e.Message.Params[0]}`, { type: 'system', timestamp: Date(e.Message.Time) })
-        store.renameUser(e.Message.Prefix.Name, e.Message.Params[0])
+        store.renameUser(e.Message.Prefix.Name, e.Message.Params[0], Date(e.Message.Time))
         break
 
     case 'QUIT':
@@ -106,7 +105,6 @@ ircEventStream.parseEvent = function(e) {
     case 'RPL_TOPIC':
         consoleMessage.message = `The user (you) ${e.Message.Params[0]} in channel ${e.Message.Params[1]} got topic reply, which is: "${e.Message.Params[2]}"`
         store.updateChannel(normalizeChannelName(e.Message.Params[1]), { topic: e.Message.Params[2] })
-        store.addMessageToChannel(normalizeChannelName(e.Message.Params[1]), `Topic changed to "${e.Message.Params[2]}" by ${e.Message.Params[0]}`, { type: 'system', timestamp: Date(e.Message.Time) })
         break
 
     case 'RPL_NAMREPLY':

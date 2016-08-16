@@ -133,9 +133,10 @@ store.removeUserFromChannel = function(channelName, user) {
     channel.users = _.without(channel.users, user)
 }
 
-store.renameUser = function(oldName, newName) {
+store.renameUser = function(oldName, newName, timestamp) {
     _.each(this.channels, function(channel) {
         if (channel.users.indexOf(oldName) >= 0) {
+            store.addMessageToChannel(channel.name, `${oldName} changed name to ${newName}.`, { type: 'system', timestamp })
             channel.users[channel.users.indexOf(oldName)] = newName
             channel.users.sort()
         }
