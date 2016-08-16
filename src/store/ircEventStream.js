@@ -41,7 +41,7 @@ ircEventStream.parseEvent = function(e) {
     }
 
     if (e.Message.Command !== 'PING') {
-        console.log('Command to parse: ', e.Message.Command, e)
+        console.log(e.Message.Command, e)
     }
 
     const consoleMessage = { command: e.Message.Command, timestamp: Date(e.Message.Time) }
@@ -62,21 +62,21 @@ ircEventStream.parseEvent = function(e) {
     case 'JOIN':
         consoleMessage.message = `${channel} by ${e.Message.Prefix.Name}`
         if (e.Message.Prefix.Name === store.connection.username) {
-            store.createOrUpdateChannel(channel, { isJoined: true })
+            store.createChannel(channel)
         }
         else {
-            store.addMessageToChannel(channel, `JOIN by ${e.Message.Prefix.Name}`, { type: 'system', timestamp: Date(e.Message.Time) })
+            store.addMessageToChannel(channel, `${e.Message.Prefix.Name} joined.`, { type: 'system', timestamp: Date(e.Message.Time) })
+            store.addUserToChannel(channel, e.Message.Prefix.Name)
         }
-        store.addUserToChannel(channel, e.Message.Prefix.Name)
         break
 
     case 'PART':
         consoleMessage.message = `${channel} by ${e.Message.Prefix.Name}`
         if (e.Message.Prefix.Name === store.connection.username) {
-            store.createOrUpdateChannel(channel, { isJoined: false })
+            store.updateChannel(channel, { isJoined: false })
         }
         else {
-            store.addMessageToChannel(channel, `PART by ${e.Message.Prefix.Name}`, { type: 'system', timestamp: Date(e.Message.Time) })
+            store.addMessageToChannel(channel, `${e.Message.Prefix.Name} left.`, { type: 'system', timestamp: Date(e.Message.Time) })
         }
         store.removeUserFromChannel(channel, e.Message.Prefix.Name)
         break
@@ -89,7 +89,7 @@ ircEventStream.parseEvent = function(e) {
     case 'TOPIC':
         consoleMessage.message = `${channel} to "${e.Message.Params[1]}" by ${e.Message.Prefix.Name}`
         store.addMessageToChannel(channel, `Topic changed to "${e.Message.Params[1]}" by ${e.Message.Prefix.Name}`, { type: 'system', timestamp: Date(e.Message.Time) })
-        store.setTopicForChannel(channel, e.Message.Params[1])
+        store.updateChannel(normalizeChannelName(e.Message.Params[2]), { topic: e.Message.Params[1] })
         break
 
     case 'NICK':
@@ -104,17 +104,15 @@ ircEventStream.parseEvent = function(e) {
         break
 
     case 'RPL_TOPIC':
-        consoleMessage.message = `The user (you) ${e.Message.Params[0]} in channel ${e.Message.Params[1]} had requested topic, which is: "${e.Message.Params[2]}"`
-        store.connection.username = e.Message.Params[0]
-        store.createOrUpdateChannel(normalizeChannelName(e.Message.Params[1]), { topic: e.Message.Params[2] })
+        consoleMessage.message = `The user (you) ${e.Message.Params[0]} in channel ${e.Message.Params[1]} got topic reply, which is: "${e.Message.Params[2]}"`
+        store.updateChannel(normalizeChannelName(e.Message.Params[1]), { topic: e.Message.Params[2] })
+        store.addMessageToChannel(normalizeChannelName(e.Message.Params[1]), `Topic changed to "${e.Message.Params[2]}" by ${e.Message.Params[0]}`, { type: 'system', timestamp: Date(e.Message.Time) })
         break
 
     case 'RPL_NAMREPLY':
         consoleMessage.message = `The user (you) ${e.Message.Params[0]} (${e.Message.Params[1]})? is in channel ${e.Message.Params[2]} with users "${e.Message.Params[3]}"`
-        store.connection.username = e.Message.Params[0]
         const users = e.Message.Params[3].split(' ').sort()
-        const isJoined = users.indexOf(store.connection.username) >= 0
-        store.createOrUpdateChannel(normalizeChannelName(e.Message.Params[2]), { users, isJoined })
+        store.updateChannel(normalizeChannelName(e.Message.Params[2]), { users })
         break
 
     case 'RPL_ENDOFNAMES':
@@ -137,7 +135,7 @@ ircEventStream.parseEvent = function(e) {
         break
 
     default:
-        consoleMessage.message = 'Unknown IRC command'
+        consoleMessage.message = `Unknown IRC command ${e.Message.Command}`
         console.warn('Found an irc command we didn\'t handle:', e.Message.Command, e)
     }
 
