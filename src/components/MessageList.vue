@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div v-for="message in activeChannel.messages" class="ui basic vertical segment">
+        <div v-for="message in channel.messages" class="ui basic vertical segment">
                 <span v-if="message.user" class="ui basic label" :style='hslFromName(message.user)'>{{ message.user }}</span>
                 <span class="ui basic muted label">{{ message.timestamp }}</span>
                 <br>
@@ -12,10 +12,19 @@
 
 <script>
     export default {
-        props: ['activeChannel'],
+        data: function() {
+            return {
+                channel: {}
+            }
+        },
         methods: {
             hslFromName(user) {
                 return { 'border-color': intToHSL(getHashCode(user)) }
+            }
+        },
+        events: {
+            'CHANNEL-CHANGED'(channel) {
+                this.channel = channel
             }
         }
     }

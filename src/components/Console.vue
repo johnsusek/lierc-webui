@@ -22,9 +22,3 @@
         }
     }
 </script>
-
-<style scoped>
-    .ui.feed > .event> {
-        margin: 0.5em 0 0 0;
-    }
-</style>

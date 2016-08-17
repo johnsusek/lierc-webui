@@ -1,10 +1,9 @@
 <template>
     <main>
-        <div class="layout-left">{{foo}}
+        <div class="layout-left">
             <user-menu :connection="connection"></user-menu>
             <br>
             <channel-list :channels="channels"></channel-list>
-            <!-- <direct-messages></direct-messages> -->
         </div>
 
         <div class="layout-right flex-grow flex-column flex-display">
@@ -14,8 +13,8 @@
 
             <div class="flex-grow flex-display">
                 <div class="layout-middle flex-grow">
-                    <console v-show="!aChannelIsBeingViewed" :console="console"></console>
-                    <message-list v-show="aChannelIsBeingViewed" :active-channel="activeChannel"></message-list>
+                    <!-- <console :console="console"></console> -->
+                    <message-list></message-list>
                 </div>
                 <div><!-- layout-inspector --></div>
             </div>
@@ -31,14 +30,12 @@
 <script>
     import UserMenu from './components/UserMenu'
     import ChannelList from './components/ChannelList'
-    import DirectMessages from './components/DirectMessages'
     import ChannelTopic from './components/ChannelTopic'
     import UserInput from './components/UserInput'
     import MessageList from './components/MessageList'
     import Console from './components/Console'
     import liercEventStream from './store/liercEventStream'
     import store from './store'
-    import _ from 'lodash'
 
     export default {
         data: function() {
@@ -49,21 +46,13 @@
             }
         },
         components: {
-            UserMenu, ChannelList, DirectMessages, ChannelTopic, UserInput, MessageList, Console
+            UserMenu, ChannelList, ChannelTopic, UserInput, MessageList, Console
         },
         ready() {
             liercEventStream.open()
         },
         beforeDestroy() {
             liercEventStream.close()
-        },
-        computed: {
-            aChannelIsBeingViewed() {
-                return !!_.find(store.channels, 'isBeingViewed')
-            },
-            activeChannel() {
-                return _.find(store.channels, 'isBeingViewed')
-            }
         },
         events: {
             'CHANGE-CHANNEL'(channel) {
