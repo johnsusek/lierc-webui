@@ -151,3 +151,14 @@ store.quitUser = function(user, timestamp) {
         }
     })
 }
+
+store.changeChannelBeingViewed = function(channel) {
+    for (let otherChannel of this.channels) {
+        if (otherChannel === channel) {
+            channel.isBeingViewed = true
+        }
+        else {
+            otherChannel.isBeingViewed = false
+        }
+    }
+}

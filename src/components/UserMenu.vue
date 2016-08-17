@@ -4,7 +4,7 @@
 
 <script>
     export default {
-        store: ['connection']
+        props: ['connection']
     }
 </script>
 

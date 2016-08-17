@@ -14,7 +14,7 @@
 
 <script>
     export default {
-        store: ['console'],
+        props: ['console'],
         ready() {
             this.$watch('console.messages', () => {
                 this.$el.parentNode.scrollTop = this.$el.parentNode.scrollHeight

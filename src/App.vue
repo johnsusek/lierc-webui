@@ -1,19 +1,21 @@
 <template>
     <main>
-        <div class="layout-left">
-            <user-menu></user-menu>
+        <div class="layout-left">{{foo}}
+            <user-menu :connection="connection"></user-menu>
             <br>
-            <channel-list></channel-list>
+            <channel-list :channels="channels"></channel-list>
             <!-- <direct-messages></direct-messages> -->
         </div>
 
         <div class="layout-right flex-grow flex-column flex-display">
-            <div class="layout-top"><topic></topic></div>
+            <div class="layout-top">
+                <channel-topic></channel-topic>
+            </div>
 
             <div class="flex-grow flex-display">
                 <div class="layout-middle flex-grow">
-                    <console v-show="!activeChannel"></console>
-                    <message-list v-show="activeChannel" :active-channel="activeChannel"></message-list>
+                    <console v-show="!aChannelIsBeingViewed" :console="console"></console>
+                    <message-list v-show="aChannelIsBeingViewed" :active-channel="activeChannel"></message-list>
                 </div>
                 <div><!-- layout-inspector --></div>
             </div>
@@ -30,17 +32,24 @@
     import UserMenu from './components/UserMenu'
     import ChannelList from './components/ChannelList'
     import DirectMessages from './components/DirectMessages'
-    import Topic from './components/Topic'
+    import ChannelTopic from './components/ChannelTopic'
     import UserInput from './components/UserInput'
     import MessageList from './components/MessageList'
     import Console from './components/Console'
     import liercEventStream from './store/liercEventStream'
+    import store from './store'
     import _ from 'lodash'
 
     export default {
-        store: ['channels'],
+        data: function() {
+            return {
+                channels: store.channels,
+                connection: store.connection,
+                console: store.console
+            }
+        },
         components: {
-            UserMenu, ChannelList, DirectMessages, Topic, UserInput, MessageList, Console
+            UserMenu, ChannelList, DirectMessages, ChannelTopic, UserInput, MessageList, Console
         },
         ready() {
             liercEventStream.open()
@@ -49,8 +58,17 @@
             liercEventStream.close()
         },
         computed: {
+            aChannelIsBeingViewed() {
+                return !!_.find(store.channels, 'isBeingViewed')
+            },
             activeChannel() {
-                return _.find(this.channels, 'isBeingViewed') || { messages: [] }
+                return _.find(store.channels, 'isBeingViewed')
+            }
+        },
+        events: {
+            'CHANGE-CHANNEL'(channel) {
+                store.changeChannelBeingViewed(channel)
+                this.$broadcast('CHANNEL-CHANGED', channel)
             }
         }
     }
