@@ -13,7 +13,9 @@
 
             <div class="flex-grow flex-display">
                 <div class="layout-middle flex-grow">
-                    <!-- <console :console="console"></console> -->
+                    <div v-show="!isAnyChannelBeingViewed">
+                        <console :console="console"></console>
+                    </div>
                     <message-list></message-list>
                 </div>
                 <div><!-- layout-inspector --></div>
@@ -36,6 +38,7 @@
     import Console from './components/Console'
     import liercEventStream from './store/liercEventStream'
     import store from './store'
+    import _ from 'lodash'
 
     export default {
         data: function() {
@@ -43,6 +46,11 @@
                 channels: store.channels,
                 connection: store.connection,
                 console: store.console
+            }
+        },
+        computed: {
+            isAnyChannelBeingViewed() {
+                return !!_.find(this.channels, 'isBeingViewed')
             }
         },
         components: {

@@ -8,7 +8,7 @@
                     <div v-for="user in channel.users" class="item">{{ user }}</div>
                 </div>
             </div>
-            &mdash; {{ channel.topic }}
+            <span v-show="channel.topic">&mdash; {{ channel.topic }}</span>
         </div>
     </h3>
 </template>
