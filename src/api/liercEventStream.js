@@ -3,14 +3,14 @@
  *  depending on the IRC command in the event (JOIN, PART, or a numeric code [see replyNames]).
  */
 
-import store from '../store'
+import store from '../vuex/store'
 
 const liercEventStream = {}
 
 export default liercEventStream
 
 liercEventStream.open = function() {
-    const source = new EventSource(store.apiConfig.ircEventsURL)
+    const source = new EventSource(store.state.apiConfig.ircEventsURL)
 
     source.addEventListener('irc', (event) => {
         switch (event.type) {
@@ -44,7 +44,7 @@ liercEventStream.parseEvent = function(e) {
         console.log(e.Message.Command, e)
     }
 
-    const consoleMessage = { command: e.Message.Command, timestamp: Date(e.Message.Time) }
+    const consoleMessage = { command: e.Message.Command, timestamp: e.Message.Time }
 
     switch (e.Message.Command) {
 
@@ -61,60 +61,61 @@ liercEventStream.parseEvent = function(e) {
 
     case 'JOIN':
         consoleMessage.message = `${channel} by ${e.Message.Prefix.Name}`
-        if (e.Message.Prefix.Name === store.connection.username) {
-            store.createChannel(channel)
+        if (e.Message.Prefix.Name === store.state.connection.username) {
+            store.dispatch('CHANNEL_CREATE', channel)
         }
         else {
-            store.addMessageToChannel(channel, `${e.Message.Prefix.Name} joined.`, { type: 'system', timestamp: Date(e.Message.Time) })
-            store.addUserToChannel(channel, e.Message.Prefix.Name)
+            store.dispatch('CHANNEL_ADD_MESSAGE', channel, `${e.Message.Prefix.Name} joined.`, 'system', '', e.Message.Time)
+            store.dispatch('CHANNEL_ADD_USER', channel, e.Message.Prefix.Name)
         }
         break
 
     case 'PART':
         consoleMessage.message = `${channel} by ${e.Message.Prefix.Name}`
-        if (e.Message.Prefix.Name === store.connection.username) {
-            store.updateChannel(channel, { isJoined: false })
+        if (e.Message.Prefix.Name === store.state.connection.username) {
+            store.dispatch('CHANNEL_LEAVE', channel)
         }
         else {
-            store.addMessageToChannel(channel, `${e.Message.Prefix.Name} left.`, { type: 'system', timestamp: Date(e.Message.Time) })
+            store.dispatch('CHANNEL_ADD_MESSAGE', channel, `${e.Message.Prefix.Name} left.`, 'system', '', e.Message.Time)
         }
-        store.removeUserFromChannel(channel, e.Message.Prefix.Name)
+        store.dispatch('CHANNEL_REMOVE_USER', channel, e.Message.Prefix.Name)
         break
 
     case 'PRIVMSG':
         consoleMessage.message = `"${e.Message.Params[1]}" to channel ${channel} by ${e.Message.Prefix.Name}`
-        store.addMessageToChannel(channel, e.Message.Params[1], { type: 'user', user: e.Message.Prefix.Name, timestamp: Date(e.Message.Time) })
+        store.dispatch('CHANNEL_ADD_MESSAGE', channel, e.Message.Params[1], 'user', e.Message.Prefix.Name, e.Message.Time)
         break
 
     case 'TOPIC':
         consoleMessage.message = `${channel} to "${e.Message.Params[1]}" by ${e.Message.Prefix.Name}`
-        store.addMessageToChannel(channel, `Topic changed to "${e.Message.Params[1]}" by ${e.Message.Prefix.Name}`, { type: 'system', timestamp: Date(e.Message.Time) })
-        store.updateChannel(channel, { topic: e.Message.Params[1] })
+        store.dispatch('CHANNEL_ADD_MESSAGE', channel, `Topic changed to "${e.Message.Params[1]}" by ${e.Message.Prefix.Name}`, 'system', '', e.Message.Time)
+        store.dispatch('CHANNEL_SET_TOPIC', channel, e.Message.Params[1])
         break
 
     case 'NICK':
         consoleMessage.message = `${e.Message.Params[0]} from ${e.Message.Prefix.Name}`
-        store.renameUser(e.Message.Prefix.Name, e.Message.Params[0], Date(e.Message.Time))
+        store.dispatch('USER_RENAME', e.Message.Prefix.Name, e.Message.Params[0], e.Message.Time)
         break
 
     case 'QUIT':
         consoleMessage.message = `"${e.Message.Params[0]}" by ${e.Message.Prefix.Name}`
-        store.quitUser(e.Message.Prefix.Name, Date(e.Message.Time))
+        store.dispatch('USER_QUIT', e.Message.Prefix.Name, e.Message.Time)
         break
 
     case 'RPL_TOPIC':
         consoleMessage.message = `The user (you) ${e.Message.Params[0]} in channel ${e.Message.Params[1]} got topic reply, which is: "${e.Message.Params[2]}"`
-        store.updateChannel(normalizeChannelName(e.Message.Params[1]), { topic: e.Message.Params[2] })
+        store.dispatch('CHANNEL_SET_TOPIC', normalizeChannelName(e.Message.Params[1]), e.Message.Params[2])
         break
 
     case 'RPL_NAMREPLY':
         consoleMessage.message = `The user (you) ${e.Message.Params[0]} (${e.Message.Params[1]})? is in channel ${e.Message.Params[2]} with users "${e.Message.Params[3]}"`
         const users = e.Message.Params[3].split(' ').sort()
-        store.updateChannel(normalizeChannelName(e.Message.Params[2]), { users })
+        store.dispatch('CHANNEL_SET_USERS', normalizeChannelName(e.Message.Params[2]), users)
         break
 
     case 'RPL_ENDOFNAMES':
         consoleMessage.message = 'The previous NAMES reply was the last.'
+        store.dispatch('CONSOLE_ADD_MESSAGE', consoleMessage.command, consoleMessage.message, consoleMessage.timestamp)
         break
 
     case 'RPL_WELCOME': // Note https://github.com/martynsmith/node-irc/blob/master/lib/irc.js#L123
@@ -137,7 +138,7 @@ liercEventStream.parseEvent = function(e) {
         console.warn('Found an irc command we didn\'t handle:', e.Message.Command, e)
     }
 
-    store.console.messages.push(consoleMessage)
+    store.dispatch('CONSOLE_ADD_MESSAGE', consoleMessage.command, consoleMessage.message, consoleMessage.timestamp)
 }
 
 function normalizeChannelName(name) {

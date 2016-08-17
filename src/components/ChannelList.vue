@@ -5,7 +5,7 @@
         <i class="muted add circle link icon"></i>
 
         <div class="ui small vertical menu">
-            <a v-on:click="changeChannel(channel)"
+            <a @click="selectChannel(channel)"
                v-for="channel in channels"
                class="item"
                :class="{ 'muted': !channel.isJoined, 'active': channel.isBeingViewed }">
@@ -16,11 +16,16 @@
 </template>
 
 <script>
+    import { selectChannel } from '../vuex/actions'
+    import { getChannels } from '../vuex/getters'
+
     export default {
-        props: ['channels'],
-        methods: {
-            changeChannel(channel) {
-                this.$dispatch('CHANGE-CHANNEL', channel)
+        vuex: {
+            actions: {
+                selectChannel
+            },
+            getters: {
+                channels: getChannels
             }
         }
     }

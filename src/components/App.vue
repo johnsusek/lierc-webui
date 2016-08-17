@@ -1,9 +1,9 @@
 <template>
     <main>
         <div class="layout-left">
-            <user-menu :connection="connection"></user-menu>
+            <user-menu></user-menu>
             <br>
-            <channel-list :channels="channels"></channel-list>
+            <channel-list></channel-list>
         </div>
 
         <div class="layout-right flex-grow flex-column flex-display">
@@ -13,9 +13,7 @@
 
             <div class="flex-grow flex-display">
                 <div class="layout-middle flex-grow">
-                    <div v-show="!isAnyChannelBeingViewed">
-                        <console :console="console"></console>
-                    </div>
+                    <console v-show="!userHasSelectedChannel"></console>
                     <message-list></message-list>
                 </div>
                 <div><!-- layout-inspector --></div>
@@ -30,27 +28,19 @@
 </template>
 
 <script>
-    import UserMenu from './components/UserMenu'
-    import ChannelList from './components/ChannelList'
-    import ChannelTopic from './components/ChannelTopic'
-    import UserInput from './components/UserInput'
-    import MessageList from './components/MessageList'
-    import Console from './components/Console'
-    import liercEventStream from './store/liercEventStream'
-    import store from './store'
-    import _ from 'lodash'
+    import UserMenu from './UserMenu'
+    import ChannelList from './ChannelList'
+    import ChannelTopic from './ChannelTopic'
+    import UserInput from './UserInput'
+    import MessageList from './MessageList'
+    import Console from './Console'
+    import liercEventStream from '../api/liercEventStream'
+    import { userHasSelectedChannel } from '../vuex/getters'
 
     export default {
-        data: function() {
-            return {
-                channels: store.channels,
-                connection: store.connection,
-                console: store.console
-            }
-        },
-        computed: {
-            isAnyChannelBeingViewed() {
-                return !!_.find(this.channels, 'isBeingViewed')
+        vuex: {
+            getters: {
+                userHasSelectedChannel
             }
         },
         components: {
@@ -61,12 +51,6 @@
         },
         beforeDestroy() {
             liercEventStream.close()
-        },
-        events: {
-            'CHANGE-CHANNEL'(channel) {
-                store.changeChannelBeingViewed(channel)
-                this.$broadcast('CHANNEL-CHANGED', channel)
-            }
         }
     }
 </script>

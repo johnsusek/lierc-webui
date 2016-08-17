@@ -1,5 +1,5 @@
 <template>
-    <h3 v-show="channel.name" class="ui header">
+    <h3 v-show="channel" class="ui header">
         {{ channel.name }}
         <div class="sub header muted">
             <div class="ui dropdown">
@@ -14,10 +14,12 @@
 </template>
 
 <script>
+    import { getSelectedChannel } from '../vuex/getters'
+
     export default {
-        data() {
-            return {
-                channel: {}
+        vuex: {
+            getters: {
+                channel: getSelectedChannel
             }
         },
         ready() {
@@ -25,11 +27,6 @@
         },
         beforeDestroy() {
             $(this.$el).find('.ui.dropdown').dropdown('destroy')
-        },
-        events: {
-            'CHANNEL-CHANGED'(channel) {
-                this.channel = channel
-            }
         }
     }
 </script>

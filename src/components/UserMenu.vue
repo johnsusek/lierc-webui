@@ -3,8 +3,14 @@
 </template>
 
 <script>
+    import { getConnection } from '../vuex/getters'
+
     export default {
-        props: ['connection']
+        vuex: {
+            getters: {
+                connection: getConnection
+            }
+        }
     }
 </script>
 

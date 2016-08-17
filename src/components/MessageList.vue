@@ -11,20 +11,17 @@
 </template>
 
 <script>
+    import { getSelectedChannel } from '../vuex/getters'
+
     export default {
-        data: function() {
-            return {
-                channel: {}
+        vuex: {
+            getters: {
+                channel: getSelectedChannel
             }
         },
         methods: {
             hslFromName(user) {
                 return { 'border-color': intToHSL(getHashCode(user)) }
-            }
-        },
-        events: {
-            'CHANNEL-CHANGED'(channel) {
-                this.channel = channel
             }
         }
     }

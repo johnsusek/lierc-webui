@@ -13,8 +13,14 @@
 </template>
 
 <script>
+    import { getConsole } from '../vuex/getters'
+
     export default {
-        props: ['console'],
+        vuex: {
+            getters: {
+                console: getConsole
+            }
+        },
         ready() {
             this.$watch('console.messages', () => {
                 this.$el.parentNode.scrollTop = this.$el.parentNode.scrollHeight
