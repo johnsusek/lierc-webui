@@ -57,7 +57,7 @@ liercEventStream.parseEvent = function(e) {
     case 'PART':
     case 'PRIVMSG':
     case 'TOPIC':
-        var channel = normalizeChannelName(e.Message.Params[0])
+        var channel = e.Message.Params[0]
         break
 
     }
@@ -103,13 +103,13 @@ liercEventStream.parseEvent = function(e) {
 
     case 'RPL_TOPIC':
         consoleMessage.message = `The user (you) ${e.Message.Params[0]} in channel ${e.Message.Params[1]} got topic reply, which is: "${e.Message.Params[2]}"`
-        store.dispatch('CHANNEL_TOPIC_CHANGE', e.ConnectionId, normalizeChannelName(e.Message.Params[1]), e.Message.Params[2])
+        store.dispatch('CHANNEL_TOPIC_CHANGE', e.ConnectionId, e.Message.Params[1], e.Message.Params[2])
         break
 
     case 'RPL_NAMREPLY':
         consoleMessage.message = `The user (you) ${e.Message.Params[0]} (${e.Message.Params[1]})? is in channel ${e.Message.Params[2]} with users "${e.Message.Params[3]}"`
         const users = e.Message.Params[3].split(' ').sort()
-        store.dispatch('CHANNEL_USERS_UPDATED', e.ConnectionId, normalizeChannelName(e.Message.Params[2]), users)
+        store.dispatch('CHANNEL_USERS_UPDATED', e.ConnectionId, e.Message.Params[2], users)
         break
 
     case 'RPL_ENDOFNAMES':
@@ -136,10 +136,6 @@ liercEventStream.parseEvent = function(e) {
     }
 
     store.dispatch('CONSOLE_NEW_MESSAGE', consoleMessage.connectionId, consoleMessage.command, consoleMessage.message, consoleMessage.timestamp)
-}
-
-function normalizeChannelName(name) {
-    return name.replace(/#+/, '#')
 }
 
 // https://tools.ietf.org/html/rfc1459#section-4
