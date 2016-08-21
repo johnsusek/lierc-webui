@@ -90,12 +90,13 @@ const mutations = {
         }
     },
     CHANNEL_USER_PART(state, connectionId, channelName, nick, timestamp) {
+        debugger
         const channel = _.find(state.connections[connectionId].channels, ['name', channelName])
         if (nick === state.connections[connectionId].nick) {
             channel.isJoined = false
         }
         else {
-            addMessageToChannel(state, connectionId, channel, `${nick} left.`, 'system', '', timestamp)
+            addMessageToChannel(state, connectionId, channelName, `${nick} left.`, 'system', '', timestamp)
         }
         channel.users = _.without(channel.users, nick)
     },
