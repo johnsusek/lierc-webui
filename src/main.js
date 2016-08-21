@@ -11,6 +11,7 @@ import Logout from './components/Logout'
 import Register from './components/Register'
 import Connections from './components/Connections'
 import ConnectionCreate from './components/ConnectionCreate'
+import moment from 'moment'
 
 Vue.use(VueResource)
 Vue.use(VueRouter)
@@ -48,3 +49,7 @@ router.redirect({
 })
 
 router.start(App, '#app')
+
+Vue.filter('moment', function(timestamp) {
+    return moment.unix(timestamp).format('dddd, MMMM Do YYYY, h:mm:ss a')
+})

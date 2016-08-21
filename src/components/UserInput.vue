@@ -1,7 +1,7 @@
 <template>
     <form class="ui form">
         <div class="field">
-            <input type="text" v-model="message" v-on:keyup.enter.stop="send" title="Shortcut: <Enter>">
+            <input type="text" v-model="message" v-on:keyup.enter.stop="send" title="Shortcut: &lt;Enter&gt;">
         </div>
     </form>
 </template>

@@ -5,7 +5,7 @@
                 <div v-if="message.type == 'user'" class="content">
                     <div class="summary">
                         {{ message.user }}
-                        <div class="date">{{ message.timestamp }}</div>
+                        <div class="date">{{ message.timestamp | moment }}</div>
                     </div>
                     {{ message.message }}
                 </div>
