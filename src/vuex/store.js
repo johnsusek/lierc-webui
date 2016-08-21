@@ -1,163 +1,233 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import _ from 'lodash'
+import liercEventStream from '../api/liercEventStream'
 
 Vue.use(Vuex)
 
 const state = {
-    apiConfig: {
-        ircEventsURL: 'http://lierc-webui.local:8080/api/events'
-    },
-    connection: {
-        username: 'johnsolo'
-    },
-    console: {
-        messages: [
+    activeChannel: {},
+    lierc: {
+        user: '',
+        isAuthenticated: false,
+        connections: [
             // {
-            //     message: '',
-            //     command: '',
-            //     timestamp:
+            //     id: '',
+            //     config: {
+            //         host: '',
+            //         nick: '',
+            //         pass: '',
+            //         port: 0,
+            //         ssl: false,
+            //         user: '',
+            //         channels: ['']
+            //     }
             // }
         ]
     },
-    channels: [
-        // {
-        //     name: '',
-        //     topic: '',
-        //     isJoined: true,
-        //     isBeingViewed: true,
-        //     unreadCount: 0,
-        //     users: ['', ...],
-        //     messages: [
-        //         {
-        //             type: 'user',
-        //             user: 'alice',
-        //             message: 'content',
-        //             timestamp:
-        //         },
-        //         {
-        //             type: 'system',
-        //             message: 'content',
-        //             timestamp:
-        //         }
-        //     ]
-        // }
-    ]
+    connections: {
+            // id: {
+            //     nick: '',
+            //     console: {
+            //         messages: [ { message: '', command: '', timestamp: '' } ]
+            //     },
+            //     channels: [
+            //         {
+            //             name: '',
+            //             topic: '',
+            //             isJoined: true,
+            //             unreadCount: 0,
+            //             users: [''],
+            //             messages: [
+            //                 {
+            //                     type: 'user',
+            //                     user: 'alice',
+            //                     message: 'content',
+            //                     timestamp: ''
+            //                 },
+            //                 {
+            //                     type: 'system',
+            //                     message: 'content',
+            //                     timestamp: ''
+            //                 }
+            //             ]
+            //         }
+            //     ]
+            // }
+    }
 }
 
 const mutations = {
-    CONSOLE_ADD_MESSAGE(state, command, message, timestamp) {
-        state.console.messages.push({ command, message, timestamp })
-    },
-    CHANNEL_CREATE(state, channelName) {
-        const channel = _.find(state.channels, ['name', channelName])
-
-        if (channel) {
-            console.error('Tried to create a channel that already exists', name)
+    //
+    // Console events
+    //
+    CONSOLE_NEW_MESSAGE(state, connectionId, command, message, timestamp) {
+        if (!state.connections[connectionId]) {
+            console.log('Tried to log a console message for a connection that doesn\'t exist', connectionId, command, message)
             return
         }
-
-        state.channels.push({
-            name: channelName,
-            topic: '',
-            users: [],
-            isJoined: true,
-            isBeingViewed: false,
-            unreadCount: 0,
-            messages: []
-        })
+        state.connections[connectionId].console.messages.push({ command, message, timestamp })
     },
-    CHANNEL_LEAVE(state, channelName) {
-        const channel = _.find(state.channels, ['name', channelName])
-
-        if (!channel) {
-            console.error('Tried to leave a channel that doesn\'t exist', channelName)
-            return
-        }
-
-        channel.isJoined = false
-    },
-    CHANNEL_SET_TOPIC(state, channelName, topic) {
-        const channel = _.find(state.channels, ['name', channelName])
-
-        if (!channel) {
-            console.error('Tried to set topic for a channel that doesn\'t exist', channelName)
-            return
-        }
-
-        channel.topic = topic
-    },
-    CHANNEL_SET_USERS(state, channelName, users) {
-        const channel = _.find(state.channels, ['name', channelName])
-
-        if (!channel) {
-            console.error('Tried to set topic for a channel that doesn\'t exist', channelName)
-            return
-        }
-
-        channel.users = users
-    },
-    CHANNEL_ADD_MESSAGE(state, name, message, type, user, timestamp) {
-        addMessageToChannel(state, name, message, type, user, timestamp)
-    },
-    CHANNEL_ADD_USER(state, channelName, user) {
-        const channel = _.find(state.channels, ['name', channelName])
-
-        if (!channel.users) {
-            channel.users = []
-        }
-        else if (channel.users.indexOf(user) >= 0) {
-            console.warn('Tried to add a user to a channel they already were in')
+    //
+    // Channel events
+    //
+    CHANNEL_USER_JOIN(state, connectionId, channel, nick, timestamp) {
+        if (nick === state.connections[connectionId].nick) {
+            state.connections[connectionId].channels.push({
+                name: channel,
+                topic: '',
+                users: [],
+                isJoined: true,
+                unreadCount: 0,
+                messages: []
+            })
         }
         else {
-            channel.users.push(user)
-            channel.users.sort()
+            addMessageToChannel(state, connectionId, channel, `${nick} joined.`, 'system', '', timestamp)
+            const chan = _.find(state.connections[connectionId].channels, ['name', channel])
+            chan.users.push(nick)
+            chan.users.sort()
         }
     },
-    CHANNEL_REMOVE_USER(state, channelName, user) {
-        const channel = _.find(state.channels, ['name', channelName])
-
-        if (!channel.users) {
-            console.warn('Tried to remove user from an undefined user list')
-            return
+    CHANNEL_USER_PART(state, connectionId, channelName, nick, timestamp) {
+        const channel = _.find(state.connections[connectionId].channels, ['name', channelName])
+        if (nick === state.connections[connectionId].nick) {
+            channel.isJoined = false
         }
-
-        if (channel.users.indexOf(user) < 0) {
-            console.warn('Tried to remove user from a channel they weren\'t in')
-            return
+        else {
+            addMessageToChannel(state, connectionId, channel, `${nick} left.`, 'system', '', timestamp)
         }
-
-        channel.users = _.without(channel.users, user)
+        channel.users = _.without(channel.users, nick)
     },
-    USER_RENAME(state, oldName, newName, timestamp) {
-        _.each(state.channels, function(channel) {
+    CHANNEL_USERS_UPDATED(state, connectionId, channelName, users) {
+        const channel = _.find(state.connections[connectionId].channels, ['name', channelName])
+        channel.users = _(channel.users.concat(users)).uniq().value()
+    },
+    CHANNEL_NEW_MESSAGE(state, connectionId, name, message, type, user, timestamp) {
+        const channel = _.find(state.connections[connectionId].channels, ['name', name])
+        if (channel !== state.activeChannel) {
+            channel.unreadCount++
+        }
+        addMessageToChannel(state, connectionId, name, message, type, user, timestamp)
+    },
+    CHANNEL_TOPIC_CHANGE(state, connectionId, channelName, topic) {
+        const channel = _.find(state.connections[connectionId].channels, ['name', channelName])
+        channel.topic = topic
+    },
+    //
+    // User events
+    //
+    USER_RENAME(state, connectionId, oldName, newName, timestamp) {
+        _.each(state.connections[connectionId].channels, function(channel) {
             if (channel.users.indexOf(oldName) >= 0) {
-                addMessageToChannel(state, channel.name, `${oldName} changed name to ${newName}.`, 'system', '', timestamp)
+                addMessageToChannel(state, connectionId, channel.name, `${oldName} changed name to ${newName}.`, 'system', '', timestamp)
                 channel.users[channel.users.indexOf(oldName)] = newName
                 channel.users.sort()
             }
         })
     },
-    USER_QUIT(state, user, timestamp) {
-        _.each(state.channels, function(channel) {
+    USER_QUIT(state, connectionId, user, timestamp) {
+        _.each(state.connections[connectionId].channels, function(channel) {
             if (channel.users.indexOf(user) >= 0) {
-                addMessageToChannel(state, channel.name, `${user} quit.`, 'system', '', timestamp)
+                addMessageToChannel(state, connectionId, channel.name, `${user} quit.`, 'system', '', timestamp)
                 channel.users = _.without(channel.users, user)
             }
         })
     },
-    CHANNEL_SELECT(state, channel) {
-        for (let otherChannel of state.channels) {
-            if (otherChannel !== channel) {
-                otherChannel.isBeingViewed = false
-            }
+    //
+    // Connection events
+    //
+    CONNECTION_CONNECTED(state, connectionId, nick) {
+        // Find a connection with this id, if there's none then
+        // add it to the object
+        const connection = state.connections[connectionId]
+        if (!connection) {
+            Vue.set(state.connections, connectionId, {
+                nick: nick,
+                console: {
+                    messages: []
+                },
+                channels: []
+            })
         }
-        channel.isBeingViewed = true
+    },
+    //
+    // UI events
+    //
+    UI_CHANNEL_SELECT(state, channel) {
+        Vue.set(state, 'activeChannel', channel)
+        channel.unreadCount = 0
+    },
+    //
+    // liercd events
+    //
+    LIERC_IS_AUTHENTICATED(state, user) {
+        liercEventStream.open()
+        state.lierc.user = user
+        state.lierc.isAuthenticated = true
+    },
+    LIERC_CONNECTION_ADDED(state, connection, id) {
+        state.lierc.connections.push({
+            id: id,
+            config: {
+                host: connection.Host,
+                nick: connection.Nick,
+                pass: '',
+                port: connection.Port,
+                ssl: connection.Ssl,
+                user: connection.User,
+                channels: []
+            }
+        })
+    },
+    LIERC_CONNECTION_REMOVED(state, id) {
+        let connectionToRemove = _.find(state.lierc.connections, ['id', id])
+        state.lierc.connections = _.without(state.lierc.connections, connectionToRemove)
+    },
+    LIERC_CONNECTIONS_RECEIVED(state, connections) {
+        state.lierc.connections = []
+        for (let connection of connections) {
+            state.lierc.connections.push({
+                id: connection.id,
+                config: {
+                    host: connection.Config.Host,
+                    nick: connection.Config.Nick,
+                    pass: connection.Config.Pass,
+                    port: connection.Config.Port,
+                    ssl: connection.Config.Ssl,
+                    user: connection.Config.User,
+                    channels: connection.Config.Channels
+                }
+            })
+        }
+    },
+    //
+    // AJAX events
+    //
+    AJAX_TRANSPORT_ERROR(state, error, response) {
+        console.error('Received error response during transport:', error, response)
+    },
+    AJAX_SERVICE_ERROR(state, error, response) {
+        console.error('Received 200 but got unexpected data:', error, response)
+    },
+    //
+    // App events
+    //
+    STATE_RESET(state) {
+        liercEventStream.close()
+
+        Vue.set(state, 'lierc', {
+            user: '',
+            isAuthenticated: false,
+            connections: []
+        })
+
+        Vue.set(state, 'connections', {})
     }
 }
 
-function addMessageToChannel(state, name, message, type, user, timestamp) {
-    const channel = _.find(state.channels, ['name', name])
+function addMessageToChannel(state, connectionId, name, message, type, user, timestamp) {
+    const channel = _.find(state.connections[connectionId].channels, ['name', name])
 
     if (channel) {
         if (!channel.messages) {
