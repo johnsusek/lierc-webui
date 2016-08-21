@@ -8,12 +8,12 @@
 
 <script>
     import { getActiveChannelConnectionId } from '../vuex/getters'
-    import { postMessage } from '../vuex/actions'
+    import { sendCommand } from '../vuex/actions'
 
     export default {
         vuex: {
             actions: {
-                postMessage
+                sendCommand
             },
             getters: {
                 getActiveChannelConnectionId
@@ -27,7 +27,7 @@
         methods: {
             send() {
                 console.log(this.message, this.getActiveChannelConnectionId)
-                this.postMessage(this.getActiveChannelConnectionId, this.message)
+                this.sendCommand(this.getActiveChannelConnectionId, this.message)
                 this.message = ''
             }
         }

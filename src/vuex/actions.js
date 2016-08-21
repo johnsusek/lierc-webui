@@ -77,11 +77,9 @@ export const deleteConnection = function({ dispatch }, id) {
 }
 
 // POST api/connection/:id
-export const postMessage = function({ dispatch }, id, message) {
+export const sendCommand = function({ dispatch }, id, message) {
     return this.$http.post(`/api/connection/${id}`, message).then((response) => {
-        if (response.json().status === 'ok') {
-        }
-        else {
+        if (response.json().status !== 'ok') {
             dispatch('AJAX_SERVICE_ERROR', response.text(), response)
         }
     }, (response) => {

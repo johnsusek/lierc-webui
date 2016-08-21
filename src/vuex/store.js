@@ -37,6 +37,8 @@ const state = {
             //             topic: '',
             //             isJoined: true,
             //             unreadCount: 0,
+            //             receivedInitialUserList: false,
+            //             receivedInitialTopic: false,
             //             users: [''],
             //             messages: [
             //                 {
@@ -78,6 +80,8 @@ const mutations = {
                 topic: '',
                 users: [],
                 isJoined: true,
+                receivedInitialUserList: false,
+                receivedInitialTopic: false,
                 unreadCount: 0,
                 messages: []
             })
@@ -93,6 +97,7 @@ const mutations = {
         const channel = _.find(state.connections[connectionId].channels, ['name', channelName])
         if (nick === state.connections[connectionId].nick) {
             channel.isJoined = false
+            channel.receivedInitialUserList = false
         }
         else {
             addMessageToChannel(state, connectionId, channelName, `${nick} left.`, 'system', '', timestamp)
@@ -101,6 +106,7 @@ const mutations = {
     },
     CHANNEL_USERS_UPDATED(state, connectionId, channelName, users) {
         const channel = _.find(state.connections[connectionId].channels, ['name', channelName])
+        channel.receivedInitialUserList = true
         channel.users = _(channel.users.concat(users)).uniq().value()
     },
     CHANNEL_NEW_MESSAGE(state, connectionId, name, message, type, user, timestamp) {
@@ -112,6 +118,7 @@ const mutations = {
     },
     CHANNEL_TOPIC_CHANGE(state, connectionId, channelName, topic) {
         const channel = _.find(state.connections[connectionId].channels, ['name', channelName])
+        channel.receivedInitialTopic = true
         channel.topic = topic
     },
     //

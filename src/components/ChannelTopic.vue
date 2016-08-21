@@ -2,7 +2,7 @@
     <div>
         <h3 v-if="activeChannel" class="ui header">
             {{ activeChannel.name }}
-            <div class="sub header muted">
+            <div v-show="activeChannel.users.length" class="sub header muted">
                 {{ activeChannel.users.length }} users
                 <span v-show="activeChannel.topic">&mdash; {{ activeChannel.topic }}</span>
             </div>
@@ -11,13 +11,13 @@
 </template>
 
 <script>
-    import { postMessage } from '../vuex/actions'
+    import { sendCommand } from '../vuex/actions'
     import { getActiveChannel, getActiveChannelConnectionId } from '../vuex/getters'
 
     export default {
         vuex: {
             actions: {
-                postMessage
+                sendCommand
             },
             getters: {
                 activeChannel: getActiveChannel,
@@ -26,11 +26,15 @@
         },
         watch: {
             activeChannel(channel) {
-                if (!channel.topic) {
-                    this.postMessage(this.connectionId, `TOPIC ${channel.name}`)
+                if (!channel.receivedInitialTopic) {
+                    this.sendCommand(this.connectionId, `TOPIC ${channel.name}`).then(() => {
+                        channel.receivedInitialTopic = true
+                    })
                 }
-                if (!channel.users.length) {
-                    this.postMessage(this.connectionId, `NAMES ${channel.name}`)
+                if (!channel.receivedInitialUserList) {
+                    this.sendCommand(this.connectionId, `NAMES ${channel.name}`).then(() => {
+                        channel.receivedInitialUserList = true
+                    })
                 }
             }
         }
