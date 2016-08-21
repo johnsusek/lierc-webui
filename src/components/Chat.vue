@@ -31,7 +31,6 @@
 <script>
     import ServiceMenu from './ServiceMenu'
     import ChannelsList from './ChannelsList'
-    import ConnectionsList from './ConnectionsList'
     import ChannelTopic from './ChannelTopic'
     import UserInput from './UserInput'
     import ChannelMessages from './ChannelMessages'
@@ -45,7 +44,7 @@
             }
         },
         components: {
-            ServiceMenu, ChannelsList, ConnectionsList, ChannelTopic, UserInput, ChannelMessages, Console
+            ServiceMenu, ChannelsList, ChannelTopic, UserInput, ChannelMessages, Console
         }
     }
 </script>

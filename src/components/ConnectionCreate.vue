@@ -108,7 +108,7 @@
                     'Nick': this.config.nick,
                     'User': this.config.user,
                     'Pass': this.config.pass,
-                    'Channels': ['#foobar1701', '#foobar913j']
+                    'Channels': []
                 }
 
                 this.createConnection(connection).then((response) => {

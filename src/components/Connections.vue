@@ -67,11 +67,6 @@
                 confirming: ''
             }
         },
-        computed: {
-            isConfirming() {
-                console.log(arguments)
-            }
-        },
         methods: {
             refresh() {
                 this.isLoading = true
