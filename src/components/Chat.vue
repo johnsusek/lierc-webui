@@ -1,5 +1,5 @@
 <template>
-    <main class="flex-display">
+    <main class="flex-display" tabindex="0" v-on:keyup.enter="focusInput" v-on:keyup.esc="blurInput">
         <div class="layout-left">
             <channels-list></channels-list>
             <!-- <connections-list></connections-list> -->
@@ -21,7 +21,7 @@
             </div>
 
             <div class="layout-bottom">
-                <user-input></user-input>
+                <user-input v-ref:user-input></user-input>
             </div>
         </div>
 
@@ -45,6 +45,16 @@
         },
         components: {
             ServiceMenu, ChannelsList, ChannelTopic, UserInput, ChannelMessages, Console
+        },
+        methods: {
+            // TODO: Make this more vue-y, with a mixin or custom directive
+            focusInput() {
+                this.$refs.userInput.$el.querySelector('input').focus()
+            },
+            blurInput() {
+                this.$refs.userInput.$el.querySelector('input').blur()
+                this.$el.focus()
+            }
         }
     }
 </script>
