@@ -1,7 +1,7 @@
 <template>
     <div v-show="channel == getActiveChannel">
         <div class="ui small feed">
-            <div v-for="message in channel.messages" class="event">
+            <div v-for="message in channel.messages" track-by="timestamp" class="event">
                 <div v-if="message.type == 'user'" class="content">
                     <div class="summary">
                         {{ message.user }}

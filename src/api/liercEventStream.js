@@ -12,7 +12,7 @@ export default liercEventStream
 liercEventStream.open = function() {
     console.info('Opening liercEventStream')
 
-    this.source = new EventSource('/api/events')
+    this.source = new EventSource('/api/events?skip-post-join-events=1')
 
     this.source.addEventListener('irc', (event) => {
         switch (event.type) {

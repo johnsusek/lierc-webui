@@ -11,12 +11,27 @@
 </template>
 
 <script>
-    import { getActiveChannel } from '../vuex/getters'
+    import { postMessage } from '../vuex/actions'
+    import { getActiveChannel, getActiveChannelConnectionId } from '../vuex/getters'
 
     export default {
         vuex: {
+            actions: {
+                postMessage
+            },
             getters: {
-                activeChannel: getActiveChannel
+                activeChannel: getActiveChannel,
+                connectionId: getActiveChannelConnectionId
+            }
+        },
+        watch: {
+            activeChannel(channel) {
+                if (!channel.topic) {
+                    this.postMessage(this.connectionId, `TOPIC ${channel.name}`)
+                }
+                if (!channel.users.length) {
+                    this.postMessage(this.connectionId, `NAMES ${channel.name}`)
+                }
             }
         }
     }
