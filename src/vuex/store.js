@@ -9,6 +9,7 @@ const state = {
     activeChannel: {},
     lierc: {
         user: '',
+        email: '',
         isAuthenticated: false,
         connections: [
             // {
@@ -168,9 +169,10 @@ const mutations = {
     //
     // liercd events
     //
-    LIERC_IS_AUTHENTICATED(state, user) {
+    LIERC_IS_AUTHENTICATED(state, user, email) {
         liercEventStream.open()
         state.lierc.user = user
+        state.lierc.email = email
         state.lierc.isAuthenticated = true
     },
     LIERC_CONNECTION_ADDED(state, connection, id) {

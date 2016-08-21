@@ -18,9 +18,9 @@ export function getActiveChannelConnectionId(state) {
 }
 
 export function getChannels(state) {
-    return _.flatMap(state.connections, function(c) {
+    return _.sortBy(_.flatMap(state.connections, function(c) {
         return c.channels
-    })
+    }), ['name'])
 }
 
 export function getConnections(state) {
@@ -33,7 +33,7 @@ export function getServiceConnections(state) {
 }
 
 export function getServiceUser(state) {
-    return state.lierc.user
+    return state.lierc.email
 }
 
 export function userIsAuthenticated(state) {

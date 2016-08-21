@@ -1,8 +1,7 @@
 <template>
     <div class="service-menu">
-        <div class="ui right labeled icon pointing dropdown tiny button">
-            <i class="chevron down icon"></i>
-            <span class="text">lierc</span>
+        <div class="ui right pointing icon dropdown basic button">
+            <i class="setting icon"></i>
             <div class="menu">
                 <div class="header">
                     {{ serviceUser }}

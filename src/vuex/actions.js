@@ -37,7 +37,7 @@ export const refreshConnections = function({ dispatch }) {
 export const checkUserAuthStatusAndSetId = function({ dispatch }) {
     return this.$http.get('/api/auth').then((response) => {
         if (response.json().user) {
-            dispatch('LIERC_IS_AUTHENTICATED', response.json().user)
+            dispatch('LIERC_IS_AUTHENTICATED', response.json().user, response.json().email)
         }
         else {
             dispatch('AJAX_SERVICE_ERROR', response.text(), response)
