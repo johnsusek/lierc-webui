@@ -2,19 +2,16 @@
     <main class="flex-display" tabindex="0" v-on:keyup.enter="focusInput" v-on:keyup.esc="blurInput">
         <div class="layout-left">
             <channels-list></channels-list>
-            <!-- <connections-list></connections-list> -->
-            <!-- <channel-list></channel-list> -->
         </div>
 
         <div class="layout-right flex-grow flex-column flex-display">
             <div class="layout-top flex-display">
                 <channel-topic class="flex-grow"></channel-topic>
-                <service-menu></service-menu>
+                <main-menu></main-menu>
             </div>
 
             <div class="flex-grow flex-display">
                 <div class="layout-middle flex-grow">
-                    <!-- <console v-show="!userHasSelectedChannel"></console> -->
                     <channel-messages v-for="channel in getChannels" :channel="channel"></channel-messages>
                 </div>
                 <div class="layout-inspector"></div>
@@ -29,13 +26,12 @@
 </template>
 
 <script>
-    import ServiceMenu from './ServiceMenu'
+    import MainMenu from './MainMenu'
     import ChannelsList from './ChannelsList'
     import ChannelTopic from './ChannelTopic'
     import UserInput from './UserInput'
     import ChannelMessages from './ChannelMessages'
-    import Console from './Console'
-    import { getChannels } from '../vuex/getters'
+    import { getChannels } from '../../vuex/getters'
 
     export default {
         vuex: {
@@ -44,7 +40,7 @@
             }
         },
         components: {
-            ServiceMenu, ChannelsList, ChannelTopic, UserInput, ChannelMessages, Console
+            MainMenu, ChannelsList, ChannelTopic, UserInput, ChannelMessages
         },
         methods: {
             // TODO: Make this more vue-y, with a mixin or custom directive
@@ -105,5 +101,6 @@
     }
     .layout-bottom {
         padding: 0 1em;
+        flex-shrink: 0;
     }
 </style>

@@ -16,7 +16,7 @@
 </template>
 
 <script>
-    import { getServiceUser } from '../vuex/getters'
+    import { getServiceUser } from '../../vuex/getters'
 
     export default {
         vuex: {

@@ -7,8 +7,8 @@
 </template>
 
 <script>
-    import { getActiveChannelConnectionId } from '../vuex/getters'
-    import { sendCommand } from '../vuex/actions'
+    import { getActiveChannelConnectionId } from '../../vuex/getters'
+    import { sendCommand } from '../../vuex/actions'
 
     export default {
         vuex: {

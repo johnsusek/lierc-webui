@@ -48,8 +48,8 @@
 </template>
 
 <script>
-    import { getServiceConnections } from '../vuex/getters'
-    import { refreshConnections, deleteConnection } from '../vuex/actions'
+    import { getServiceConnections } from '../../vuex/getters'
+    import { refreshConnections, deleteConnection } from '../../vuex/actions'
 
     export default {
         vuex: {

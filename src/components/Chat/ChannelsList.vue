@@ -13,8 +13,8 @@
 </template>
 
 <script>
-    import { selectChannel } from '../vuex/actions'
-    import { getChannels, getActiveChannel } from '../vuex/getters'
+    import { selectChannel } from '../../vuex/actions'
+    import { getChannels, getActiveChannel } from '../../vuex/getters'
 
     export default {
         vuex: {

@@ -3,7 +3,7 @@
 </template>
 
 <script>
-    import { logoutUser, resetState } from '../vuex/actions'
+    import { logoutUser, resetState } from '../../vuex/actions'
 
     export default {
         vuex: {

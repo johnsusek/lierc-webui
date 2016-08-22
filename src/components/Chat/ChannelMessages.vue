@@ -18,7 +18,7 @@
 </template>
 
 <script>
-    import { getActiveChannel } from '../vuex/getters'
+    import { getActiveChannel } from '../../vuex/getters'
 
     export default {
         props: ['channel'],

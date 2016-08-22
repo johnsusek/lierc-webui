@@ -25,7 +25,7 @@
 
 <script>
     import Vue from 'vue'
-    import { checkUserAuthStatusAndSetId, refreshConnections, loginUser } from '../vuex/actions'
+    import { checkUserAuthStatusAndSetId, refreshConnections, loginUser } from '../../vuex/actions'
 
     export default {
         data() {

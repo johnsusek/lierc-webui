@@ -37,7 +37,7 @@
 </template>
 
 <script>
-    import { createConnection, addConnectionToList } from '../vuex/actions'
+    import { createConnection, addConnectionToList } from '../../vuex/actions'
 
     export default {
         vuex: {

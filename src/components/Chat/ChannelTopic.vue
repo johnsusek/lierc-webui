@@ -11,8 +11,8 @@
 </template>
 
 <script>
-    import { sendCommand } from '../vuex/actions'
-    import { getActiveChannel, getActiveChannelConnectionId } from '../vuex/getters'
+    import { sendCommand } from '../../vuex/actions'
+    import { getActiveChannel, getActiveChannelConnectionId } from '../../vuex/getters'
 
     export default {
         vuex: {

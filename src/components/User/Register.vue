@@ -41,7 +41,7 @@
 
 <script>
     import Vue from 'vue'
-    import { registerUser } from '../vuex/actions'
+    import { registerUser } from '../../vuex/actions'
 
     export default {
         data() {
