@@ -238,8 +238,9 @@ const mutations = {
         })
     },
     LIERC_CONNECTION_REMOVED(state, id) {
-        let connectionToRemove = _.find(state.lierc.connections, ['id', id])
-        state.lierc.connections = _.without(state.lierc.connections, connectionToRemove)
+        let liercConnectionToRemove = _.find(state.lierc.connections, ['id', id])
+        state.lierc.connections = _.without(state.lierc.connections, liercConnectionToRemove)
+        Vue.delete(state.connections, id)
     },
     LIERC_CONNECTIONS_RECEIVED(state, connections) {
         state.lierc.connections = []
