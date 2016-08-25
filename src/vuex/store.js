@@ -74,10 +74,23 @@ const mutations = {
     //
     // Channel events
     //
-    CHANNEL_USER_JOIN(state, connectionId, channel, nick, timestamp) {
-        if (nick === state.connections[connectionId].nick) {
-            state.connections[connectionId].channels.push({
-                name: channel,
+    CHANNEL_USER_JOIN(state, connectionId, channelName, nick, timestamp) {
+        const connection = state.connections[connectionId]
+
+        if (!connection) {
+            console.error('Tried join on channel on a connection that doesn\'t exist')
+            return
+        }
+
+        const channel = _.find(connection.channels, ['name', channelName])
+
+        if (nick === connection.nick) {
+            if (channel) {
+                console.error('Tried adding a channel that was already created', channelName)
+                return
+            }
+            connection.channels.push({
+                name: channelName,
                 topic: '',
                 users: [],
                 isJoined: true,
@@ -88,14 +101,23 @@ const mutations = {
             })
         }
         else {
-            addMessageToChannel(state, connectionId, channel, `${nick} joined.`, 'system', '', timestamp)
-            const chan = _.find(state.connections[connectionId].channels, ['name', channel])
-            chan.users.push(nick)
-            chan.users.sort()
+            if (!channel) {
+                console.error('Tried to update user list for join on a channel that doesn\'t exist', channelName)
+                return
+            }
+            addMessageToChannel(state, connectionId, channelName, `${nick} joined.`, 'system', '', timestamp)
+            channel.users.push(nick)
+            channel.users.sort()
         }
     },
     CHANNEL_USER_PART(state, connectionId, channelName, nick, timestamp) {
         const channel = _.find(state.connections[connectionId].channels, ['name', channelName])
+
+        if (!channel) {
+            console.error('Tried to update user list for part on a channel that doesn\'t exist', channel)
+            return
+        }
+
         if (nick === state.connections[connectionId].nick) {
             channel.isJoined = false
             channel.receivedInitialUserList = false
@@ -107,18 +129,34 @@ const mutations = {
     },
     CHANNEL_USERS_UPDATED(state, connectionId, channelName, users) {
         const channel = _.find(state.connections[connectionId].channels, ['name', channelName])
+
+        if (!channel) {
+            console.error('Tried to update users on a channel that doesn\'t exist', channelName)
+            return
+        }
+
         channel.receivedInitialUserList = true
         channel.users = _(channel.users.concat(users)).uniq().value()
     },
-    CHANNEL_NEW_MESSAGE(state, connectionId, name, message, type, user, timestamp) {
-        const channel = _.find(state.connections[connectionId].channels, ['name', name])
+    CHANNEL_NEW_MESSAGE(state, connectionId, channelName, message, type, user, timestamp) {
+        const channel = _.find(state.connections[connectionId].channels, ['name', channelName])
+        if (!channel) {
+            console.error('Tried to add message on a channel that doesn\'t exist', channelName)
+            return
+        }
         if (channel !== state.activeChannel) {
             channel.unreadCount++
         }
-        addMessageToChannel(state, connectionId, name, message, type, user, timestamp)
+        addMessageToChannel(state, connectionId, channelName, message, type, user, timestamp)
     },
     CHANNEL_TOPIC_CHANGE(state, connectionId, channelName, topic) {
         const channel = _.find(state.connections[connectionId].channels, ['name', channelName])
+
+        if (!channel) {
+            console.error('Tried to set topic on a channel that doesn\'t exist', channelName)
+            return
+        }
+
         channel.receivedInitialTopic = true
         channel.topic = topic
     },
@@ -235,8 +273,8 @@ const mutations = {
     }
 }
 
-function addMessageToChannel(state, connectionId, name, message, type, user, timestamp) {
-    const channel = _.find(state.connections[connectionId].channels, ['name', name])
+function addMessageToChannel(state, connectionId, channelName, message, type, user, timestamp) {
+    const channel = _.find(state.connections[connectionId].channels, ['name', channelName])
 
     if (channel) {
         if (!channel.messages) {
@@ -245,7 +283,7 @@ function addMessageToChannel(state, connectionId, name, message, type, user, tim
         channel.messages.push({ type, user, message, timestamp })
     }
     else {
-        console.error('Tried to send message to channel that doesn\'t exist', name, message)
+        console.error('Tried to send message to channel that doesn\'t exist', channelName, message)
     }
 }
 

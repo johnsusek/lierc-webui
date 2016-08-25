@@ -1,9 +1,9 @@
 <template>
     <div>
-        <h3 v-if="activeChannel" class="ui header">
+        <h3 v-show="activeChannel.name" class="ui header">
             {{ activeChannel.name }}
-            <div v-show="activeChannel.users.length" class="sub header muted">
-                {{ activeChannel.users.length }} users
+            <div class="sub header muted">
+                {{ activeChannel.users ? activeChannel.users.length : 0 }} users
                 <span v-show="activeChannel.topic">&mdash; {{ activeChannel.topic }}</span>
             </div>
         </h3>
