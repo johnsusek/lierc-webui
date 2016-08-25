@@ -7,8 +7,9 @@
 </template>
 
 <script>
-    import { getActiveChannelConnectionId } from '../../vuex/getters'
+    import { getActiveChannelConnectionId, getActiveChannel } from '../../vuex/getters'
     import { sendCommand } from '../../vuex/actions'
+    import _ from 'lodash'
 
     export default {
         vuex: {
@@ -16,7 +17,8 @@
                 sendCommand
             },
             getters: {
-                getActiveChannelConnectionId
+                getActiveChannelConnectionId,
+                getActiveChannel
             }
         },
         data() {
@@ -26,9 +28,15 @@
         },
         methods: {
             send() {
-                console.log(this.message, this.getActiveChannelConnectionId)
-                this.sendCommand(this.getActiveChannelConnectionId, this.message)
+                let command = ''
+                if (_.startsWith(this.message, '/')) {
+                    command = this.message.substring(1)
+                }
+                else {
+                    command = `PRIVMSG ${this.getActiveChannel.name} ${this.message}`
+                }
                 this.message = ''
+                this.sendCommand(this.getActiveChannelConnectionId, command)
             }
         }
     }

@@ -36,7 +36,6 @@ const state = {
             //         {
             //             name: '',
             //             topic: '',
-            //             isJoined: true,
             //             unreadCount: 0,
             //             receivedInitialUserList: false,
             //             receivedInitialTopic: false,
@@ -94,7 +93,6 @@ const mutations = {
                 name: channelName,
                 topic: '',
                 users: [],
-                isJoined: true,
                 receivedInitialUserList: false,
                 receivedInitialTopic: false,
                 unreadCount: 0,
@@ -104,11 +102,7 @@ const mutations = {
 
             connection.channels.push(insertedChannel)
 
-            const allChannels = _.sortBy(_.flatMap(state.connections, function(c) {
-                return c.channels
-            }), ['name'])
-
-            state.activeChannel = allChannels[0]
+            state.activeChannel = insertedChannel
         }
         else {
             if (!channel) {
@@ -121,6 +115,13 @@ const mutations = {
         }
     },
     CHANNEL_USER_PART(state, connectionId, channelName, nick, timestamp) {
+        const connection = state.connections[connectionId]
+
+        if (!connection) {
+            console.error('Tried leave channel on a connection that doesn\'t exist')
+            return
+        }
+
         const channel = _.find(state.connections[connectionId].channels, ['name', channelName])
 
         if (!channel) {
@@ -128,14 +129,20 @@ const mutations = {
             return
         }
 
-        if (nick === state.connections[connectionId].nick) {
-            channel.isJoined = false
-            channel.receivedInitialUserList = false
+        if (nick === connection.nick) {
+            connection.channels = _.without(connection.channels, channel)
+            if (channel === state.activeChannel) {
+                const allChannels = _.sortBy(_.flatMap(state.connections, function(c) {
+                    return c.channels
+                }), ['name'])
+
+                state.activeChannel = allChannels[0]
+            }
         }
         else {
             addMessageToChannel(state, connectionId, channelName, `${nick} left.`, 'system', '', timestamp)
+            channel.users = _.without(channel.users, nick)
         }
-        channel.users = _.without(channel.users, nick)
     },
     CHANNEL_USERS_UPDATED(state, connectionId, channelName, users) {
         const channel = _.find(state.connections[connectionId].channels, ['name', channelName])
