@@ -89,7 +89,8 @@ const mutations = {
                 console.error('Tried adding a channel that was already created', channelName)
                 return
             }
-            connection.channels.push({
+
+            let insertedChannel = {
                 name: channelName,
                 topic: '',
                 users: [],
@@ -98,7 +99,16 @@ const mutations = {
                 receivedInitialTopic: false,
                 unreadCount: 0,
                 messages: []
-            })
+
+            }
+
+            connection.channels.push(insertedChannel)
+
+            const allChannels = _.sortBy(_.flatMap(state.connections, function(c) {
+                return c.channels
+            }), ['name'])
+
+            state.activeChannel = allChannels[0]
         }
         else {
             if (!channel) {
