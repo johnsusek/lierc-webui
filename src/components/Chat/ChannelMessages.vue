@@ -26,7 +26,8 @@
         data() {
             return {
                 lastScrollTop: 0,
-                userScrolledUp: false
+                userScrolledUp: false,
+                firstActivation: true
             }
         },
         props: ['channel'],
@@ -62,8 +63,9 @@
         },
         ready() {
             this.$watch('getActiveChannel', () => {
-                if (this.$el.scrollHeight > 0) {
+                if (this.firstActivation && this.$el.scrollHeight > 0) {
                     this.$el.scrollTop = this.$el.scrollHeight
+                    this.firstActivation = false
                 }
             })
             this.$watch('channel.messages', () => {
