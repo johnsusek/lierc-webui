@@ -1,3 +1,5 @@
+import liercEventStream from '../api/liercEventStream'
+
 export const resetState = function({ dispatch }) {
     dispatch('STATE_RESET')
 }
@@ -82,6 +84,15 @@ export const sendCommand = function({ dispatch }, id, message) {
         if (response.json().status !== 'ok') {
             dispatch('AJAX_SERVICE_ERROR', response.text(), response)
         }
+    }, (response) => {
+        dispatch('AJAX_TRANSPORT_ERROR', response.json().error, response)
+    })
+}
+
+// GET api/connection/:id/:channel/channel/events
+export const populateInitialChannelEvents = function({ dispatch }, id, channel) {
+    return this.$http.get(`/api/connection/${id}/channel/${encodeURIComponent(channel)}/events`).then((response) => {
+        liercEventStream.parseEvents(response.json())
     }, (response) => {
         dispatch('AJAX_TRANSPORT_ERROR', response.json().error, response)
     })

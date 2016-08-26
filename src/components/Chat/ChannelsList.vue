@@ -1,12 +1,12 @@
 <template>
     <div>
-        <div class="ui fluid borderless vertical menu">
+        <div class="ui vertical menu">
             <a v-for="channel in getChannels"
-               class="item"
+               class="link item"
                @click="selectChannel(channel)"
                :class="{ 'active': channel == getActiveChannel }">
                 {{ channel.name }}
-                <div v-show="channel.unreadCount" class="ui mini basic grey label">{{ channel.unreadCount }}</div>
+                <div v-show="channel.unreadCount" class="ui mini basic label">{{ channel.unreadCount }}</div>
             </a>
         </div>
     </div>
@@ -31,19 +31,6 @@
 
 <style scoped>
     .ui.vertical.menu {
-        border-radius: 0;
-        border: 0;
-        box-shadow: none;
-
-    }
-    .ui.vertical.menu .item > .label {
-        right: 0;
-        top: 0.95rem;
-        position: absolute;
-    }
-
-    .ui.menu .item {
-        padding-right: 24px;
-        padding-left: 24px;
+        width: 12em;
     }
 </style>

@@ -2,7 +2,7 @@
     <div>
         <h3 v-show="activeChannel.name" class="ui header">
             {{ activeChannel.name }}
-            <div class="sub header muted">
+            <div class="sub header">
                 {{ activeChannel.users ? activeChannel.users.length : 0 }} users
                 <span v-show="activeChannel.topic">&mdash; {{ activeChannel.topic }}</span>
             </div>

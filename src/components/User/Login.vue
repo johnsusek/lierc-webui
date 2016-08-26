@@ -91,9 +91,3 @@
         }
     }
 </script>
-
-<style scoped>
-    .ui.header > .icon {
-        padding-top: 0;
-    }
-</style>

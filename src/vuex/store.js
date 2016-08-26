@@ -299,6 +299,7 @@ function addMessageToChannel(state, connectionId, channelName, message, type, us
             channel.messages = []
         }
         channel.messages.push({ type, user, message, timestamp })
+        channel.messages = _.sortBy(channel.messages, ['timestamp'])
     }
     else {
         console.error('Tried to send message to channel that doesn\'t exist', channelName, message)

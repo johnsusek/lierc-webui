@@ -55,21 +55,7 @@
     }
 </script>
 
-<style>
-    html, body {
-        height: 100%;
-        overflow: hidden;
-    }
-    .muted {
-        color: rgba(192,192,192,0.8) !important;
-        border-color: rgba(192,192,192,0.2) !important;
-    }
-</style>
-
 <style scoped>
-    main {
-        height: 100%;
-    }
     .flex-column {
         flex-direction: column;
     }
@@ -79,20 +65,18 @@
     .flex-display {
         display: flex;
     }
-
     .layout-top {
         padding-left: 1rem;
         flex-shrink: 0;
     }
-
     .layout-left {
         overflow-x: hidden;
         overflow-y: auto;
         max-width: 320px;
         flex-shrink: 0;
+        padding: 1rem 0 0 1rem;
     }
     .layout-inspector {
-        background: orange;
     }
     .layout-middle {
         padding: 0 1em;

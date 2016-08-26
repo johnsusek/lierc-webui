@@ -40,6 +40,12 @@ liercEventStream.close = function() {
     }
 }
 
+liercEventStream.parseEvents = function(events) {
+    for (let event of events) {
+        this.parseEvent(event)
+    }
+}
+
 liercEventStream.parseEvent = function(e) {
     if (replyNames[e.Message.Command]) {
         e.Message.Command = replyNames[e.Message.Command]

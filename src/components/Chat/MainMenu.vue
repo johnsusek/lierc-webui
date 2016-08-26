@@ -1,5 +1,5 @@
 <template>
-    <div class="service-menu">
+    <div class="main-menu">
         <div class="ui right pointing icon dropdown basic button">
             <i class="setting icon"></i>
             <div class="menu">
@@ -31,7 +31,7 @@
 </script>
 
 <style scoped>
-    .service-menu {
-        margin: 1em;
+    .main-menu {
+        margin: 1rem;
     }
 </style>

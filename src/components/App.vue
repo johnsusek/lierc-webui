@@ -36,18 +36,4 @@
         height: 100%;
         overflow: hidden;
     }
-    .muted {
-        color: rgba(192,192,192,0.8) !important;
-        border-color: rgba(192,192,192,0.2) !important;
-    }
-    .ui.form input[type=text]:focus,
-    .ui.form input[type=password]:focus {
-        border-color: rgba(192,192,192,0.8);
-        border-style: dashed;
-    }
-    .ui.checkbox input:focus~.box:before,
-    .ui.checkbox input:focus~label:before {
-        border-color: rgba(192,192,192,0.8);
-        border-style: dotted;
-    }
 </style>

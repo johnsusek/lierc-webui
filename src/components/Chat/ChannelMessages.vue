@@ -9,7 +9,7 @@
                     </div>
                     {{ message.message }}
                 </div>
-                <div v-else class="content muted">
+                <div v-else class="content">
                     {{ message.message }}
                 </div>
             </div>
@@ -18,22 +18,38 @@
 </template>
 
 <script>
-    import { getActiveChannel } from '../../vuex/getters'
+    import { getActiveChannel, getConnections } from '../../vuex/getters'
+    import { populateInitialChannelEvents } from '../../vuex/actions'
+    import _ from 'lodash'
 
     export default {
         props: ['channel'],
         vuex: {
+            actions: {
+                populateInitialChannelEvents
+            },
             getters: {
-                getActiveChannel
+                getActiveChannel,
+                getConnections
+            }
+        },
+        methods: {
+            connectionId() {
+                let connectionId = ''
+                _.forEach(this.getConnections, (connection, id) => {
+                    if (_.includes(connection.channels, this.channel)) {
+                        connectionId = id
+                        return true
+                    }
+                })
+                return connectionId
             }
         },
         ready() {
             this.$watch('channel.messages', () => {
                 this.$el.parentNode.scrollTop = this.$el.parentNode.scrollHeight
             })
+            this.populateInitialChannelEvents(this.connectionId(), this.channel.name)
         }
     }
 </script>
-
-<style scoped>
-</style>
