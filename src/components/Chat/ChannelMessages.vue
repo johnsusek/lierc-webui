@@ -25,9 +25,9 @@
     export default {
         data() {
             return {
-                lastScrollTop: 0,
-                userScrolledUp: false,
-                firstActivation: true
+                autoScroll: true, // if this is true, automatically scroll to the bottom when new messages come in
+                hasBeenSeen: false, // if this channel has been seen in the UI yet
+                lastScrollTop: 0
             }
         },
         props: ['channel'],
@@ -43,10 +43,15 @@
         methods: {
             scrollMessages() {
                 if (this.lastScrollTop > this.$el.scrollTop) {
-                    this.userScrolledUp = true
+                    // Upward scroll, this definitely didnt come from autoscroll. dont jump away user will be annoyed
+                    this.autoScroll = false
                 }
-                else {
-                    this.userScrolledUp = false
+                else if (!this.autoScroll) {
+                    // A downward scroll with autoscroll off, did they hit bottom?
+                    if ((this.$el.scrollTop + this.$el.offsetHeight) === this.$el.scrollHeight) {
+                        // The user has hit bottom with autoScroll off, turn it back on
+                        this.autoScroll = true
+                    }
                 }
                 this.lastScrollTop = this.$el.scrollTop
             },
@@ -63,14 +68,35 @@
         },
         ready() {
             this.$watch('getActiveChannel', () => {
-                if (this.firstActivation && this.$el.scrollHeight > 0) {
+                if (this.$el.scrollHeight === 0) {
+                    return
+                }
+
+                if (!this.hasBeenSeen) {
+                    // This is the first time the channel became active this session, scroll to bottom
                     this.$el.scrollTop = this.$el.scrollHeight
-                    this.firstActivation = false
+                    this.hasBeenSeen = true
+                }
+                else {
+                    // Subsequent activation. Checking autoScroll, and if true, we jump to bottom
+                    if (this.autoScroll) {
+                        this.$el.scrollTop = this.$el.scrollHeight
+                    }
                 }
             })
             this.$watch('channel.messages', () => {
-                if (!this.userScrolledUp && this.$el.scrollHeight > 0) {
+                if (this.$el.scrollHeight === 0) {
+                    return
+                }
+
+                if (this.autoScroll) {
                     this.$el.scrollTop = this.$el.scrollHeight
+
+                    if (!this.hasBeenSeen) {
+                        // Setting hasBeenSeen true because this channel must be visible and getting messages, so it is seen by definition
+                        // (This is the case for the default visible channel)
+                        this.hasBeenSeen = true
+                    }
                 }
             })
             this.populateInitialChannelEvents(this.connectionId(), this.channel.name)
