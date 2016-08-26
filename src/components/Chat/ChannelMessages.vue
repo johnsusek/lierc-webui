@@ -1,5 +1,5 @@
 <template>
-    <div v-show="channel == getActiveChannel">
+    <div v-show="channel == getActiveChannel" @scroll="scrollMessages">
         <div class="ui small feed">
             <div v-for="message in channel.messages" track-by="timestamp" class="event">
                 <div v-if="message.type == 'user'" class="content">
@@ -23,6 +23,12 @@
     import _ from 'lodash'
 
     export default {
+        data() {
+            return {
+                lastScrollTop: 0,
+                userScrolledUp: false
+            }
+        },
         props: ['channel'],
         vuex: {
             actions: {
@@ -34,6 +40,15 @@
             }
         },
         methods: {
+            scrollMessages() {
+                if (this.lastScrollTop > this.$el.scrollTop) {
+                    this.userScrolledUp = true
+                }
+                else {
+                    this.userScrolledUp = false
+                }
+                this.lastScrollTop = this.$el.scrollTop
+            },
             connectionId() {
                 let connectionId = ''
                 _.forEach(this.getConnections, (connection, id) => {
@@ -46,8 +61,15 @@
             }
         },
         ready() {
+            this.$watch('getActiveChannel', () => {
+                if (this.$el.scrollHeight > 0) {
+                    this.$el.scrollTop = this.$el.scrollHeight
+                }
+            })
             this.$watch('channel.messages', () => {
-                this.$el.parentNode.scrollTop = this.$el.parentNode.scrollHeight
+                if (!this.userScrolledUp && this.$el.scrollHeight > 0) {
+                    this.$el.scrollTop = this.$el.scrollHeight
+                }
             })
             this.populateInitialChannelEvents(this.connectionId(), this.channel.name)
         }

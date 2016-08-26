@@ -24,7 +24,6 @@ export function getChannels(state) {
 }
 
 export function getConnections(state) {
-    console.log(state.connections)
     return state.connections
 }
 

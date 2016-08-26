@@ -11,9 +11,7 @@
             </div>
 
             <div class="flex-grow flex-display">
-                <div class="layout-middle flex-grow">
-                    <channel-messages v-for="channel in getChannels" :channel="channel"></channel-messages>
-                </div>
+                <channel-messages v-for="channel in getChannels" :channel="channel" class="layout-middle flex-grow"></channel-messages>
                 <div class="layout-inspector"></div>
             </div>
 
