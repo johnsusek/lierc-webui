@@ -92,7 +92,6 @@ liercEventStream.parseHistoricalEvent = function(e, channelName) {
     case 'RPL_NOTOPIC':
     case 'RPL_TOPICWHOTIME':
     case 'PING':
-        console.log(e)
         break
 
     default:
