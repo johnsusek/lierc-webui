@@ -19,7 +19,7 @@
 
 <script>
     import { getActiveChannel, getConnections } from '../../vuex/getters'
-    import { populateInitialChannelEvents } from '../../vuex/actions'
+    import { populateInitialChannelEvents, populateScrollback } from '../../vuex/actions'
     import _ from 'lodash'
 
     export default {
@@ -27,13 +27,15 @@
             return {
                 autoScroll: true, // if this is true, automatically scroll to the bottom when new messages come in
                 hasBeenSeen: false, // if this channel has been seen in the UI yet
-                lastScrollTop: 0
+                lastScrollTop: 0,
+                loadingScrollback: false
             }
         },
         props: ['channel'],
         vuex: {
             actions: {
-                populateInitialChannelEvents
+                populateInitialChannelEvents,
+                populateScrollback
             },
             getters: {
                 getActiveChannel,
@@ -45,6 +47,17 @@
                 if (this.lastScrollTop > this.$el.scrollTop) {
                     // Upward scroll, this definitely didnt come from autoscroll. dont jump away user will be annoyed
                     this.autoScroll = false
+
+                    if (!this.loadingScrollback && this.$el.scrollTop < 300) {
+                        this.loadingScrollback = true
+                        let oldHeight = this.$el.scrollHeight
+                        let oldScrollTop = this.$el.scrollTop
+                        this.populateScrollback(this.connectionId(), this.channel.name, this.channel.messages[0].id).then(() => {
+                            this.loadingScrollback = false
+                            let newHeight = this.$el.scrollHeight
+                            this.$el.scrollTop = (newHeight - oldHeight) + oldScrollTop
+                        })
+                    }
                 }
                 else if (!this.autoScroll) {
                     // A downward scroll with autoscroll off, did they hit bottom?
