@@ -28,6 +28,9 @@
         },
         methods: {
             send() {
+                if (this.message === '') {
+                    return
+                }
                 let command = ''
                 if (_.startsWith(this.message, '/')) {
                     command = this.message.substring(1)
