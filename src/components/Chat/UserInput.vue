@@ -1,9 +1,9 @@
 <template>
-    <form class="ui form">
+    <div class="ui form">
         <div class="field">
-            <input type="text" v-model="message" v-on:keyup.enter.stop.prevent="send" title="Shortcut: &lt;Enter&gt;">
+            <input type="text" v-model="message" v-on:keyup.enter="send" title="Shortcut: &lt;Enter&gt;">
         </div>
-    </form>
+    </div>
 </template>
 
 <script>
