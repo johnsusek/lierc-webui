@@ -117,7 +117,7 @@ const mutations = {
         }
     },
     CHANNEL_USER_JOIN_HISTORICAL(state, messageId, connectionId, channelName, nick, timestamp) {
-        addMessageToChannel(state, messageId, connectionId, channelName, `[H] ${nick} joined.`, 'system', '', timestamp)
+        addMessageToChannel(state, messageId, connectionId, channelName, `${nick} joined.`, 'system', '', timestamp)
     },
     CHANNEL_USER_PART(state, messageId, connectionId, channelName, nick, timestamp) {
         const connection = state.connections[connectionId]
@@ -150,7 +150,7 @@ const mutations = {
         }
     },
     CHANNEL_USER_PART_HISTORICAL(state, messageId, connectionId, channelName, nick, timestamp) {
-        addMessageToChannel(state, messageId, connectionId, channelName, `[H] ${nick} left.`, 'system', '', timestamp)
+        addMessageToChannel(state, messageId, connectionId, channelName, `${nick} left.`, 'system', '', timestamp)
     },
     CHANNEL_USERS_UPDATED(state, connectionId, channelName, users) {
         const channel = _.find(state.connections[connectionId].channels, ['name', channelName])
@@ -175,7 +175,7 @@ const mutations = {
         addMessageToChannel(state, messageId, connectionId, channelName, message, type, user, timestamp)
     },
     CHANNEL_NEW_MESSAGE_HISTORICAL(state, messageId, connectionId, channelName, message, type, user, timestamp) {
-        addMessageToChannel(state, messageId, connectionId, channelName, '[H] ' + message, type, user, timestamp)
+        addMessageToChannel(state, messageId, connectionId, channelName, message, type, user, timestamp)
     },
     CHANNEL_TOPIC_CHANGE(state, connectionId, channelName, topic) {
         const channel = _.find(state.connections[connectionId].channels, ['name', channelName])
@@ -201,7 +201,7 @@ const mutations = {
         })
     },
     USER_RENAME_HISTORICAL(state, channelName, messageId, connectionId, oldName, newName, timestamp) {
-        addMessageToChannel(state, messageId, connectionId, channelName, `[H] ${oldName} changed name to ${newName}.`, 'system', '', timestamp)
+        addMessageToChannel(state, messageId, connectionId, channelName, `${oldName} changed name to ${newName}.`, 'system', '', timestamp)
     },
     USER_QUIT(state, messageId, connectionId, user, timestamp) {
         _.each(state.connections[connectionId].channels, function(channel) {
@@ -212,7 +212,7 @@ const mutations = {
         })
     },
     USER_QUIT_HISTORICAL(state, channelName, messageId, connectionId, user, timestamp) {
-        addMessageToChannel(state, messageId, connectionId, channelName, `[H] ${user} quit.`, 'system', '', timestamp)
+        addMessageToChannel(state, messageId, connectionId, channelName, `${user} quit.`, 'system', '', timestamp)
     },
     //
     // Connection events
