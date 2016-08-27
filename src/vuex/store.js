@@ -87,7 +87,7 @@ const mutations = {
 
         if (nick === connection.nick) {
             if (channel) {
-                console.error('Tried adding a channel that was already created', channelName)
+                console.warn('Tried adding a channel that was already created', channelName)
                 return
             }
 

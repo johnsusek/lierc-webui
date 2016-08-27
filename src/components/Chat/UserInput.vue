@@ -36,7 +36,7 @@
                     command = this.message.substring(1)
                 }
                 else {
-                    command = `PRIVMSG ${this.getActiveChannel.name} ${this.message}`
+                    command = `PRIVMSG ${this.getActiveChannel.name} :${this.message}`
                 }
                 this.message = ''
                 this.sendCommand(this.getActiveChannelConnectionId, command)
