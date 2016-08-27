@@ -77,34 +77,34 @@ liercEventStream.parseEvent = function(e) {
         break
 
     case 'JOIN':
-        store.dispatch('CHANNEL_USER_JOIN', e.ConnectionId, channel, e.Message.Prefix.Name, e.Message.Time)
+        store.dispatch('CHANNEL_USER_JOIN', e.MessageId, e.ConnectionId, channel, e.Message.Prefix.Name, e.Message.Time)
         consoleMessage.message = `${channel} by ${e.Message.Prefix.Name}`
         break
 
     case 'PART':
         consoleMessage.message = `${channel} by ${e.Message.Prefix.Name}`
-        store.dispatch('CHANNEL_USER_PART', e.ConnectionId, channel, e.Message.Prefix.Name, e.Message.Time)
+        store.dispatch('CHANNEL_USER_PART', e.MessageId, e.ConnectionId, channel, e.Message.Prefix.Name, e.Message.Time)
         break
 
     case 'PRIVMSG':
         consoleMessage.message = `"${e.Message.Params[1]}" to channel ${channel} by ${e.Message.Prefix.Name}`
-        store.dispatch('CHANNEL_NEW_MESSAGE', e.ConnectionId, channel, e.Message.Params[1], 'user', e.Message.Prefix.Name, e.Message.Time)
+        store.dispatch('CHANNEL_NEW_MESSAGE', e.MessageId, e.ConnectionId, channel, e.Message.Params[1], 'user', e.Message.Prefix.Name, e.Message.Time)
         break
 
     case 'TOPIC':
         consoleMessage.message = `${channel} to "${e.Message.Params[1]}" by ${e.Message.Prefix.Name}`
-        store.dispatch('CHANNEL_NEW_MESSAGE', e.ConnectionId, channel, `Topic changed to "${e.Message.Params[1]}" by ${e.Message.Prefix.Name}`, 'system', '', e.Message.Time)
+        store.dispatch('CHANNEL_NEW_MESSAGE', e.MessageId, e.ConnectionId, channel, `Topic changed to "${e.Message.Params[1]}" by ${e.Message.Prefix.Name}`, 'system', '', e.Message.Time)
         store.dispatch('CHANNEL_TOPIC_CHANGE', e.ConnectionId, channel, e.Message.Params[1])
         break
 
     case 'NICK':
         consoleMessage.message = `${e.Message.Params[0]} from ${e.Message.Prefix.Name}`
-        store.dispatch('USER_RENAME', e.ConnectionId, e.Message.Prefix.Name, e.Message.Params[0], e.Message.Time)
+        store.dispatch('USER_RENAME', e.MessageId, e.ConnectionId, e.Message.Prefix.Name, e.Message.Params[0], e.Message.Time)
         break
 
     case 'QUIT':
         consoleMessage.message = `"${e.Message.Params[0]}" by ${e.Message.Prefix.Name}`
-        store.dispatch('USER_QUIT', e.ConnectionId, e.Message.Prefix.Name, e.Message.Time)
+        store.dispatch('USER_QUIT', e.MessageId, e.ConnectionId, e.Message.Prefix.Name, e.Message.Time)
         break
 
     case 'RPL_TOPIC':
@@ -133,6 +133,7 @@ liercEventStream.parseEvent = function(e) {
         consoleMessage.message = e.Message.Params[1]
         break
 
+    case 'RPL_NOTOPIC':
     case 'RPL_TOPICWHOTIME':
     case 'PING':
         break

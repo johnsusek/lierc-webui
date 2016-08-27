@@ -42,12 +42,14 @@ const state = {
             //             users: [''],
             //             messages: [
             //                 {
+            //                     id: 0,
             //                     type: 'user',
             //                     user: 'alice',
             //                     message: 'content',
             //                     timestamp: ''
             //                 },
             //                 {
+            //                     id: 0,
             //                     type: 'system',
             //                     message: 'content',
             //                     timestamp: ''
@@ -73,7 +75,7 @@ const mutations = {
     //
     // Channel events
     //
-    CHANNEL_USER_JOIN(state, connectionId, channelName, nick, timestamp) {
+    CHANNEL_USER_JOIN(state, messageId, connectionId, channelName, nick, timestamp) {
         const connection = state.connections[connectionId]
 
         if (!connection) {
@@ -109,12 +111,12 @@ const mutations = {
                 console.error('Tried to update user list for join on a channel that doesn\'t exist', channelName)
                 return
             }
-            addMessageToChannel(state, connectionId, channelName, `${nick} joined.`, 'system', '', timestamp)
+            addMessageToChannel(state, messageId, connectionId, channelName, `${nick} joined.`, 'system', '', timestamp)
             channel.users.push(nick)
             channel.users.sort()
         }
     },
-    CHANNEL_USER_PART(state, connectionId, channelName, nick, timestamp) {
+    CHANNEL_USER_PART(state, messageId, connectionId, channelName, nick, timestamp) {
         const connection = state.connections[connectionId]
 
         if (!connection) {
@@ -140,7 +142,7 @@ const mutations = {
             }
         }
         else {
-            addMessageToChannel(state, connectionId, channelName, `${nick} left.`, 'system', '', timestamp)
+            addMessageToChannel(state, messageId, connectionId, channelName, `${nick} left.`, 'system', '', timestamp)
             channel.users = _.without(channel.users, nick)
         }
     },
@@ -155,7 +157,7 @@ const mutations = {
         channel.receivedInitialUserList = true
         channel.users = _(channel.users.concat(users)).uniq().value()
     },
-    CHANNEL_NEW_MESSAGE(state, connectionId, channelName, message, type, user, timestamp) {
+    CHANNEL_NEW_MESSAGE(state, messageId, connectionId, channelName, message, type, user, timestamp) {
         const channel = _.find(state.connections[connectionId].channels, ['name', channelName])
         if (!channel) {
             console.error('Tried to add message on a channel that doesn\'t exist', channelName)
@@ -164,7 +166,7 @@ const mutations = {
         if (channel !== state.activeChannel) {
             channel.unreadCount++
         }
-        addMessageToChannel(state, connectionId, channelName, message, type, user, timestamp)
+        addMessageToChannel(state, messageId, connectionId, channelName, message, type, user, timestamp)
     },
     CHANNEL_TOPIC_CHANGE(state, connectionId, channelName, topic) {
         const channel = _.find(state.connections[connectionId].channels, ['name', channelName])
@@ -180,21 +182,21 @@ const mutations = {
     //
     // User events
     //
-    USER_RENAME(state, connectionId, oldName, newName, timestamp) {
+    USER_RENAME(state, messageId, connectionId, oldName, newName, timestamp) {
         _.each(state.connections[connectionId].channels, function(channel) {
             if (channel.users.indexOf(oldName) >= 0) {
-                addMessageToChannel(state, connectionId, channel.name, `${oldName} changed name to ${newName}.`, 'system', '', timestamp)
                 channel.users[channel.users.indexOf(oldName)] = newName
                 channel.users.sort()
             }
+            addMessageToChannel(state, messageId, connectionId, channel.name, `${oldName} changed name to ${newName}.`, 'system', '', timestamp)
         })
     },
-    USER_QUIT(state, connectionId, user, timestamp) {
+    USER_QUIT(state, messageId, connectionId, user, timestamp) {
         _.each(state.connections[connectionId].channels, function(channel) {
             if (channel.users.indexOf(user) >= 0) {
-                addMessageToChannel(state, connectionId, channel.name, `${user} quit.`, 'system', '', timestamp)
                 channel.users = _.without(channel.users, user)
             }
+            addMessageToChannel(state, messageId, connectionId, channel.name, `${user} quit.`, 'system', '', timestamp)
         })
     },
     //
@@ -291,14 +293,14 @@ const mutations = {
     }
 }
 
-function addMessageToChannel(state, connectionId, channelName, message, type, user, timestamp) {
+function addMessageToChannel(state, id, connectionId, channelName, message, type, user, timestamp) {
     const channel = _.find(state.connections[connectionId].channels, ['name', channelName])
 
     if (channel) {
         if (!channel.messages) {
             channel.messages = []
         }
-        channel.messages.push({ type, user, message, timestamp })
+        channel.messages.push({ id, type, user, message, timestamp })
         channel.messages = _.sortedUniqBy(_.sortBy(channel.messages, ['timestamp']), (m) => {
             return m.timestamp
         })
