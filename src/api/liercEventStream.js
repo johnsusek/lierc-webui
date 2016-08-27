@@ -40,9 +40,63 @@ liercEventStream.close = function() {
     }
 }
 
-liercEventStream.parseEvents = function(events) {
+liercEventStream.parseHistoricalEvents = function(events, channel) {
     for (let event of events) {
-        this.parseEvent(event)
+        this.parseHistoricalEvent(event, channel)
+    }
+}
+
+liercEventStream.parseHistoricalEvent = function(e, channelName) {
+    if (replyNames[e.Message.Command]) {
+        e.Message.Command = replyNames[e.Message.Command]
+    }
+
+    switch (e.Message.Command) {
+
+    case 'JOIN':
+        store.dispatch('CHANNEL_USER_JOIN_HISTORICAL', e.MessageId, e.ConnectionId, e.Message.Params[0], e.Message.Prefix.Name, e.Message.Time)
+        break
+
+    case 'PART':
+        store.dispatch('CHANNEL_USER_PART_HISTORICAL', e.MessageId, e.ConnectionId, e.Message.Params[0], e.Message.Prefix.Name, e.Message.Time)
+        break
+
+    case 'PRIVMSG':
+        store.dispatch('CHANNEL_NEW_MESSAGE_HISTORICAL', e.MessageId, e.ConnectionId, e.Message.Params[0], e.Message.Params[1], 'user', e.Message.Prefix.Name, e.Message.Time)
+        break
+
+    case 'TOPIC':
+        store.dispatch('CHANNEL_NEW_MESSAGE_HISTORICAL', e.MessageId, e.ConnectionId, e.Message.Params[0], `Topic changed to "${e.Message.Params[1]}" by ${e.Message.Prefix.Name}`, 'system', '', e.Message.Time)
+        break
+
+    case 'NICK':
+        store.dispatch('USER_RENAME_HISTORICAL', channelName, e.MessageId, e.ConnectionId, e.Message.Prefix.Name, e.Message.Params[0], e.Message.Time)
+        break
+
+    case 'QUIT':
+        console.log(e)
+        store.dispatch('USER_QUIT_HISTORICAL', channelName, e.MessageId, e.ConnectionId, e.Message.Prefix.Name, e.Message.Time)
+        break
+
+    case 'RPL_TOPIC':
+    case 'RPL_NAMREPLY':
+    case 'RPL_ENDOFNAMES':
+    case 'RPL_YOURHOST':
+    case 'RPL_CREATED':
+    case 'RPL_MYINFO':
+    case 'RPL_ISUPPORT':
+    case 'RPL_MOTD':
+    case 'RPL_MOTDSTART':
+    case 'RPL_ENDOFMOTD':
+    case 'ERR_NOMOTD':
+    case 'RPL_NOTOPIC':
+    case 'RPL_TOPICWHOTIME':
+    case 'PING':
+        console.log(e)
+        break
+
+    default:
+        console.warn('Found a historical irc command we didn\'t handle:', e.Message.Command, e)
     }
 }
 

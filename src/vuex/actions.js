@@ -92,7 +92,7 @@ export const sendCommand = function({ dispatch }, id, message) {
 // GET api/connection/:id/:channel/channel/events
 export const populateInitialChannelEvents = function({ dispatch }, id, channel) {
     return this.$http.get(`/api/connection/${id}/channel/${encodeURIComponent(channel)}/events`).then((response) => {
-        liercEventStream.parseEvents(response.json())
+        liercEventStream.parseHistoricalEvents(response.json(), channel)
     }, (response) => {
         dispatch('AJAX_TRANSPORT_ERROR', response.json().error, response)
     })
@@ -101,7 +101,7 @@ export const populateInitialChannelEvents = function({ dispatch }, id, channel) 
 // GET api/connection/:id/channel/:channel/events/:message
 export const populateScrollback = function({ dispatch }, id, channel, messageId) {
     return this.$http.get(`/api/connection/${id}/channel/${encodeURIComponent(channel)}/events/${messageId}`).then((response) => {
-        liercEventStream.parseEvents(response.json())
+        liercEventStream.parseHistoricalEvents(response.json(), channel)
     }, (response) => {
         dispatch('AJAX_TRANSPORT_ERROR', response.json().error, response)
     })
