@@ -51,11 +51,10 @@
                     if (!this.loadingScrollback && this.$el.scrollTop < 300) {
                         this.loadingScrollback = true
                         const oldHeight = this.$el.scrollHeight
-                        const oldScrollTop = this.$el.scrollTop
                         this.populateScrollback(this.connectionId(), this.channel.name, this.channel.messages[0].id).then(() => {
                             this.loadingScrollback = false
                             const newHeight = this.$el.scrollHeight
-                            this.$el.scrollTop = (newHeight - oldHeight) + oldScrollTop
+                            this.$el.scrollTop = (newHeight - oldHeight) + this.$el.scrollTop
                         })
                     }
                 }
