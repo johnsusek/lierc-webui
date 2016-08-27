@@ -133,6 +133,7 @@ liercEventStream.parseEvent = function(e) {
         consoleMessage.message = e.Message.Params[1]
         break
 
+    case 'RPL_TOPICWHOTIME':
     case 'PING':
         break
 
