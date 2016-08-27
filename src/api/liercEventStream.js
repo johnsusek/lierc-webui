@@ -74,7 +74,6 @@ liercEventStream.parseHistoricalEvent = function(e, channelName) {
         break
 
     case 'QUIT':
-        console.log(e)
         store.dispatch('USER_QUIT_HISTORICAL', channelName, e.MessageId, e.ConnectionId, e.Message.Prefix.Name, e.Message.Time)
         break
 
@@ -182,7 +181,6 @@ liercEventStream.parseEvent = function(e) {
     case 'RPL_MOTDSTART':
     case 'RPL_ENDOFMOTD':
     case 'ERR_NOMOTD':
-        console.log(e)
         consoleMessage.message = e.Message.Params[1]
         break
 
