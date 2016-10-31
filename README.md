@@ -1,6 +1,6 @@
 # lierc-webui
 
-> A UI for lierc
+> A UI for lierc using Vue.js
 
 ## First Time Setup
 
